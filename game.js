@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// TAN'S SANCTUARY — Clean 3D Experience
+// TAN'S SANCTUARY — Complete Edition with Animations & Music
 // ═══════════════════════════════════════════════════════════════════════════
 
 class TansSanctuary {
@@ -11,12 +11,16 @@ class TansSanctuary {
         this.clock = new THREE.Clock();
         this.loader = new THREE.GLTFLoader();
         
+        // Animation mixers for GLB animations
+        this.mixers = [];
+        
         // Game state
         this.state = {
             loaded: false,
             started: false,
             letterRead: false,
-            fireworksShown: false
+            fireworksShown: false,
+            musicPlaying: false
         };
         
         // Player
@@ -34,13 +38,7 @@ class TansSanctuary {
         this.mouseLocked = false;
         
         // 3D Models
-        this.models = {
-            house: null,
-            postbox: null,
-            skybox: null,
-            planet: null,
-            creatures: []
-        };
+        this.models = {};
         
         // Interactive objects
         this.interactables = [];
@@ -49,6 +47,12 @@ class TansSanctuary {
         // Animations
         this.floatingObjects = [];
         this.particles = [];
+        
+        // Audio
+        this.audioContext = null;
+        this.audioSource = null;
+        this.audioBuffer = null;
+        this.gainNode = null;
         
         this.init();
     }
@@ -61,6 +65,7 @@ class TansSanctuary {
         await this.loadModels();
         this.setupControls();
         this.setupUI();
+        this.setupAudio();
         this.animate();
     }
     
@@ -81,7 +86,6 @@ class TansSanctuary {
         
         this.scene = new THREE.Scene();
         
-        // Handle resize
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
@@ -100,8 +104,8 @@ class TansSanctuary {
     }
     
     setupLights() {
-        // Ambient light - soft fill
-        const ambient = new THREE.AmbientLight(0x404080, 0.4);
+        // Ambient light
+        const ambient = new THREE.AmbientLight(0x404080, 0.5);
         this.scene.add(ambient);
         
         // Main directional light (moonlight)
@@ -118,36 +122,31 @@ class TansSanctuary {
         moonLight.shadow.camera.bottom = -50;
         this.scene.add(moonLight);
         
-        // Warm accent light
+        // Warm accent lights
         const warmLight = new THREE.PointLight(0xff8866, 1.5, 30);
         warmLight.position.set(0, 3, 0);
         this.scene.add(warmLight);
         
-        // Rose colored rim light
         const roseLight = new THREE.PointLight(0xff6b8b, 0.8, 25);
         roseLight.position.set(-5, 5, -5);
         this.scene.add(roseLight);
+        
+        // Add more lights for better model visibility
+        const fillLight = new THREE.PointLight(0x6688ff, 0.5, 50);
+        fillLight.position.set(10, 10, 10);
+        this.scene.add(fillLight);
     }
     
     createEnvironment() {
-        // Create space background
         this.createSpaceSkybox();
-        
-        // Create stars
         this.createStars();
-        
-        // Create ground plane
         this.createGround();
-        
-        // Create floating particles
         this.createParticles();
     }
     
     createSpaceSkybox() {
-        // Create a large sphere with stars texture
         const geometry = new THREE.SphereGeometry(500, 64, 64);
         
-        // Create gradient space material
         const vertexShader = `
             varying vec3 vWorldPosition;
             void main() {
@@ -190,7 +189,6 @@ class TansSanctuary {
         const starCount = 3000;
         const positions = new Float32Array(starCount * 3);
         const colors = new Float32Array(starCount * 3);
-        const sizes = new Float32Array(starCount);
         
         for (let i = 0; i < starCount; i++) {
             const i3 = i * 3;
@@ -202,29 +200,19 @@ class TansSanctuary {
             positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
             positions[i3 + 2] = radius * Math.cos(phi);
             
-            // Vary star colors slightly
             const colorChoice = Math.random();
             if (colorChoice < 0.7) {
-                colors[i3] = 1;
-                colors[i3 + 1] = 1;
-                colors[i3 + 2] = 1;
+                colors[i3] = 1; colors[i3 + 1] = 1; colors[i3 + 2] = 1;
             } else if (colorChoice < 0.85) {
-                colors[i3] = 1;
-                colors[i3 + 1] = 0.9;
-                colors[i3 + 2] = 0.7;
+                colors[i3] = 1; colors[i3 + 1] = 0.9; colors[i3 + 2] = 0.7;
             } else {
-                colors[i3] = 0.7;
-                colors[i3 + 1] = 0.8;
-                colors[i3 + 2] = 1;
+                colors[i3] = 0.7; colors[i3 + 1] = 0.8; colors[i3 + 2] = 1;
             }
-            
-            sizes[i] = Math.random() * 2 + 0.5;
         }
         
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
         
         const material = new THREE.PointsMaterial({
             size: 1.5,
@@ -241,7 +229,7 @@ class TansSanctuary {
     
     createGround() {
         // Ethereal floating platform
-        const geometry = new THREE.CylinderGeometry(15, 18, 2, 64);
+        const geometry = new THREE.CylinderGeometry(20, 25, 2, 64);
         const material = new THREE.MeshStandardMaterial({
             color: 0x1a1030,
             roughness: 0.8,
@@ -256,7 +244,7 @@ class TansSanctuary {
         this.scene.add(ground);
         
         // Glowing edge ring
-        const ringGeom = new THREE.TorusGeometry(16.5, 0.2, 16, 100);
+        const ringGeom = new THREE.TorusGeometry(22.5, 0.3, 16, 100);
         const ringMat = new THREE.MeshBasicMaterial({
             color: 0xff6b8b,
             transparent: true,
@@ -270,14 +258,14 @@ class TansSanctuary {
     }
     
     createParticles() {
-        const particleCount = 200;
+        const particleCount = 300;
         const positions = new Float32Array(particleCount * 3);
         
         for (let i = 0; i < particleCount; i++) {
             const i3 = i * 3;
-            positions[i3] = (Math.random() - 0.5) * 40;
-            positions[i3 + 1] = Math.random() * 20;
-            positions[i3 + 2] = (Math.random() - 0.5) * 40;
+            positions[i3] = (Math.random() - 0.5) * 60;
+            positions[i3 + 1] = Math.random() * 30;
+            positions[i3 + 2] = (Math.random() - 0.5) * 60;
         }
         
         const geometry = new THREE.BufferGeometry();
@@ -300,255 +288,285 @@ class TansSanctuary {
         const loadBar = document.getElementById('load-bar');
         const loadStatus = document.getElementById('load-status');
         
+        const modelPath = 'assets/models/';
+        
+        // Model configurations - ALL your models
         const modelConfigs = [
-            { name: 'Loading environment...', progress: 20 },
-            { name: 'Creating sanctuary...', progress: 40 },
-            { name: 'Adding creatures...', progress: 60 },
-            { name: 'Placing postbox...', progress: 80 },
-            { name: 'Final touches...', progress: 100 }
+            { 
+                file: 'mushroom_water_house.glb', 
+                name: 'house',
+                scale: 1.2, 
+                position: [0, 0, -5],
+                rotation: [0, 0, 0]
+            },
+            { 
+                file: 'red_post_box.glb', 
+                name: 'postbox',
+                scale: 1.5, 
+                position: [6, 0, 2],
+                rotation: [0, -0.5, 0],
+                interactive: true
+            },
+            { 
+                file: 'phoenix_on_fire_update.glb', 
+                name: 'phoenix',
+                scale: 1.0, 
+                position: [15, 15, -25],
+                rotation: [0, 0, 0],
+                animate: true,
+                orbit: true
+            },
+            { 
+                file: 'jellyray.glb', 
+                name: 'jellyray1',
+                scale: 0.8, 
+                position: [-8, 8, -10],
+                rotation: [0, 0, 0],
+                animate: true,
+                float: true
+            },
+            { 
+                file: 'jellyray (1).glb', 
+                name: 'jellyray2',
+                scale: 0.6, 
+                position: [10, 12, -15],
+                rotation: [0, Math.PI, 0],
+                animate: true,
+                float: true
+            },
+            { 
+                file: 'bladderfish.glb', 
+                name: 'bladderfish1',
+                scale: 0.5, 
+                position: [-12, 6, 5],
+                rotation: [0, 0.5, 0],
+                animate: true,
+                float: true
+            },
+            { 
+                file: 'stylized_planet.glb', 
+                name: 'planet',
+                scale: 8, 
+                position: [-80, 40, -120],
+                rotation: [0.2, 0, 0.1],
+                spin: true
+            },
+            { 
+                file: 'deep_space_skybox_16k_with_planets.glb', 
+                name: 'skybox',
+                scale: 150, 
+                position: [0, 0, 0],
+                rotation: [0, 0, 0]
+            },
+            { 
+                file: 'furled_papyrus.glb', 
+                name: 'papyrus',
+                scale: 0.4, 
+                position: [6, 2.5, 2],
+                rotation: [0, 0.5, 0],
+                float: true
+            }
         ];
         
-        // Simulate loading with fallback procedural objects
+        let loaded = 0;
+        const total = modelConfigs.length;
+        
+        // Load each model
         for (const config of modelConfigs) {
-            await this.sleep(300);
-            loadStatus.textContent = config.name;
-            loadBar.style.width = config.progress + '%';
+            loadStatus.textContent = `Loading ${config.name}...`;
+            
+            try {
+                await this.loadModel(modelPath + config.file, config);
+                console.log(`✓ Loaded: ${config.name}`);
+            } catch (error) {
+                console.log(`✗ Failed to load: ${config.name}`, error.message);
+            }
+            
+            loaded++;
+            loadBar.style.width = (loaded / total * 100) + '%';
+            await this.sleep(100);
         }
         
-        // Create fallback procedural models (will use GLB if available)
-        this.createProceduralHouse();
-        this.createProceduralPostbox();
-        this.createProceduralCreatures();
-        this.createProceduralPlanets();
+        // Add more creatures by cloning
+        this.addMoreCreatures();
         
-        // Try to load GLB models
-        this.tryLoadGLBModels();
+        // Create "Tanmai" text on house
+        this.createTanmaiText();
+        
+        // Create procedural postbox as fallback
+        if (!this.models.postbox) {
+            this.createProceduralPostbox();
+        }
         
         this.state.loaded = true;
         this.finishLoading();
     }
     
-    tryLoadGLBModels() {
-        // Attempt to load red_post_box.glb
-        this.loader.load(
-            'red_post_box.glb',
-            (gltf) => {
-                // Remove procedural postbox
-                if (this.proceduralPostbox) {
-                    this.scene.remove(this.proceduralPostbox);
-                }
-                
-                const model = gltf.scene;
-                model.scale.set(1.5, 1.5, 1.5);
-                model.position.set(4, 0, -2);
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
+    loadModel(path, config) {
+        return new Promise((resolve, reject) => {
+            this.loader.load(
+                path,
+                (gltf) => {
+                    const model = gltf.scene;
+                    
+                    // Apply transforms
+                    model.scale.setScalar(config.scale);
+                    model.position.set(...config.position);
+                    if (config.rotation) {
+                        model.rotation.set(...config.rotation);
                     }
-                });
-                this.scene.add(model);
-                this.models.postbox = model;
-                
-                // Update interactable
-                this.interactables = this.interactables.filter(i => i.name !== 'Postbox');
-                this.interactables.push({
-                    object: model,
-                    name: 'Postbox',
-                    description: 'Open to read your letter',
-                    action: () => this.openLetter()
-                });
-            },
-            undefined,
-            (error) => console.log('Using procedural postbox')
-        );
-        
-        // Attempt to load mushroom_water_house.glb
-        this.loader.load(
-            'mushroom_water_house.glb',
-            (gltf) => {
-                if (this.proceduralHouse) {
-                    this.scene.remove(this.proceduralHouse);
-                }
-                
-                const model = gltf.scene;
-                model.scale.set(0.8, 0.8, 0.8);
-                model.position.set(0, 0, -5);
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
+                    
+                    // Enable shadows
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    this.scene.add(model);
+                    this.models[config.name] = model;
+                    
+                    // Setup animations if the model has them
+                    if (gltf.animations && gltf.animations.length > 0) {
+                        const mixer = new THREE.AnimationMixer(model);
+                        gltf.animations.forEach((clip) => {
+                            const action = mixer.clipAction(clip);
+                            action.play();
+                        });
+                        this.mixers.push(mixer);
+                        console.log(`  → Playing ${gltf.animations.length} animations for ${config.name}`);
                     }
-                });
-                this.scene.add(model);
-                this.models.house = model;
-            },
-            undefined,
-            (error) => console.log('Using procedural house')
-        );
-        
-        // Attempt to load jellyray.glb
-        this.loader.load(
-            'jellyray.glb',
-            (gltf) => {
-                const model = gltf.scene;
-                model.scale.set(0.5, 0.5, 0.5);
-                
-                // Create multiple instances
-                for (let i = 0; i < 5; i++) {
-                    const clone = model.clone();
-                    clone.position.set(
-                        (Math.random() - 0.5) * 30,
-                        5 + Math.random() * 10,
-                        (Math.random() - 0.5) * 30
-                    );
-                    clone.rotation.y = Math.random() * Math.PI * 2;
-                    this.scene.add(clone);
-                    this.floatingObjects.push({
-                        mesh: clone,
-                        speed: 0.3 + Math.random() * 0.2,
-                        offset: Math.random() * Math.PI * 2
-                    });
-                }
-            },
-            undefined,
-            () => {}
-        );
-        
-        // Attempt to load bladderfish.glb
-        this.loader.load(
-            'bladderfish.glb',
-            (gltf) => {
-                const model = gltf.scene;
-                model.scale.set(0.4, 0.4, 0.4);
-                
-                for (let i = 0; i < 5; i++) {
-                    const clone = model.clone();
-                    clone.position.set(
-                        (Math.random() - 0.5) * 25,
-                        3 + Math.random() * 8,
-                        (Math.random() - 0.5) * 25
-                    );
-                    clone.rotation.y = Math.random() * Math.PI * 2;
-                    this.scene.add(clone);
-                    this.floatingObjects.push({
-                        mesh: clone,
-                        speed: 0.2 + Math.random() * 0.15,
-                        offset: Math.random() * Math.PI * 2
-                    });
-                }
-            },
-            undefined,
-            () => {}
-        );
-        
-        // Attempt to load stylized_planet.glb
-        this.loader.load(
-            'stylized_planet.glb',
-            (gltf) => {
-                const model = gltf.scene;
-                model.scale.set(5, 5, 5);
-                model.position.set(-80, 30, -100);
-                this.scene.add(model);
-                this.models.planet = model;
-            },
-            undefined,
-            () => {}
-        );
-        
-        // Attempt to load phoenix
-        this.loader.load(
-            'phoenix_on_fire_update.glb',
-            (gltf) => {
-                const model = gltf.scene;
-                model.scale.set(0.8, 0.8, 0.8);
-                model.position.set(15, 12, -20);
-                this.scene.add(model);
-                
-                // Add to floating objects for animation
-                this.floatingObjects.push({
-                    mesh: model,
-                    speed: 0.15,
-                    offset: 0,
-                    isPhoenix: true
-                });
-            },
-            undefined,
-            () => {}
-        );
+                    
+                    // Add to floating objects for movement
+                    if (config.float || config.orbit || config.spin) {
+                        this.floatingObjects.push({
+                            mesh: model,
+                            config: config,
+                            basePosition: new THREE.Vector3(...config.position),
+                            offset: Math.random() * Math.PI * 2
+                        });
+                    }
+                    
+                    // Make interactive
+                    if (config.interactive) {
+                        this.interactables.push({
+                            object: model,
+                            name: 'Love Letter 💌',
+                            description: 'Press E to read your letter',
+                            action: () => this.openLetter()
+                        });
+                    }
+                    
+                    resolve(model);
+                },
+                undefined,
+                (error) => reject(error)
+            );
+        });
     }
     
-    createProceduralHouse() {
-        const group = new THREE.Group();
-        
-        // Main structure - mushroom shape
-        const capGeom = new THREE.SphereGeometry(4, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
-        const capMat = new THREE.MeshStandardMaterial({
-            color: 0xff6b8b,
-            roughness: 0.6,
-            metalness: 0.1
-        });
-        const cap = new THREE.Mesh(capGeom, capMat);
-        cap.position.y = 4;
-        cap.castShadow = true;
-        group.add(cap);
-        
-        // Stem
-        const stemGeom = new THREE.CylinderGeometry(1.5, 2, 4, 32);
-        const stemMat = new THREE.MeshStandardMaterial({
-            color: 0xeeddcc,
-            roughness: 0.8
-        });
-        const stem = new THREE.Mesh(stemGeom, stemMat);
-        stem.position.y = 2;
-        stem.castShadow = true;
-        group.add(stem);
-        
-        // Door
-        const doorGeom = new THREE.PlaneGeometry(1.2, 2);
-        const doorMat = new THREE.MeshStandardMaterial({
-            color: 0x8b4513,
-            roughness: 0.9
-        });
-        const door = new THREE.Mesh(doorGeom, doorMat);
-        door.position.set(0, 1, 2.01);
-        group.add(door);
-        
-        // Windows (glowing)
-        const windowGeom = new THREE.CircleGeometry(0.4, 16);
-        const windowMat = new THREE.MeshBasicMaterial({
-            color: 0xffdd88
-        });
-        
-        const window1 = new THREE.Mesh(windowGeom, windowMat);
-        window1.position.set(-1.2, 3.5, 2.8);
-        window1.rotation.y = 0.3;
-        group.add(window1);
-        
-        const window2 = new THREE.Mesh(windowGeom, windowMat);
-        window2.position.set(1.2, 3.5, 2.8);
-        window2.rotation.y = -0.3;
-        group.add(window2);
-        
-        // Spots on mushroom cap
-        const spotMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        for (let i = 0; i < 8; i++) {
-            const spotGeom = new THREE.CircleGeometry(0.3 + Math.random() * 0.3, 16);
-            const spot = new THREE.Mesh(spotGeom, spotMat);
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * 0.4 + 0.2;
-            spot.position.set(
-                3.5 * Math.sin(phi) * Math.cos(theta),
-                4 + 3.5 * Math.cos(phi),
-                3.5 * Math.sin(phi) * Math.sin(theta)
-            );
-            spot.lookAt(new THREE.Vector3(0, 4, 0));
-            group.add(spot);
+    addMoreCreatures() {
+        // Clone jellyray to add more
+        if (this.models.jellyray1) {
+            for (let i = 0; i < 3; i++) {
+                const clone = this.models.jellyray1.clone();
+                clone.position.set(
+                    (Math.random() - 0.5) * 40,
+                    8 + Math.random() * 12,
+                    (Math.random() - 0.5) * 40
+                );
+                clone.scale.setScalar(0.4 + Math.random() * 0.4);
+                this.scene.add(clone);
+                this.floatingObjects.push({
+                    mesh: clone,
+                    config: { float: true },
+                    basePosition: clone.position.clone(),
+                    offset: Math.random() * Math.PI * 2
+                });
+            }
         }
         
-        group.position.set(0, 0, -5);
-        this.scene.add(group);
-        this.proceduralHouse = group;
+        // Clone bladderfish
+        if (this.models.bladderfish1) {
+            for (let i = 0; i < 4; i++) {
+                const clone = this.models.bladderfish1.clone();
+                clone.position.set(
+                    (Math.random() - 0.5) * 35,
+                    4 + Math.random() * 10,
+                    (Math.random() - 0.5) * 35
+                );
+                clone.scale.setScalar(0.3 + Math.random() * 0.3);
+                clone.rotation.y = Math.random() * Math.PI * 2;
+                this.scene.add(clone);
+                this.floatingObjects.push({
+                    mesh: clone,
+                    config: { float: true },
+                    basePosition: clone.position.clone(),
+                    offset: Math.random() * Math.PI * 2
+                });
+            }
+        }
+    }
+    
+    createTanmaiText() {
+        // Create 3D text "Tanmai" using canvas texture
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        
+        // Background (transparent)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Text styling
+        ctx.fillStyle = '#ff6b8b';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.font = 'bold 72px "Cormorant Garamond", Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Draw text with glow
+        ctx.shadowColor = '#ff6b8b';
+        ctx.shadowBlur = 20;
+        ctx.strokeText('Tanmai', canvas.width / 2, canvas.height / 2);
+        ctx.fillText('Tanmai', canvas.width / 2, canvas.height / 2);
+        
+        // Add heart
+        ctx.font = '48px serif';
+        ctx.fillText('💕', canvas.width / 2, canvas.height / 2 + 50);
+        
+        // Create texture
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.needsUpdate = true;
+        
+        // Create plane with text
+        const geometry = new THREE.PlaneGeometry(4, 1);
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        
+        const textMesh = new THREE.Mesh(geometry, material);
+        textMesh.position.set(0, 5.5, -3); // Above the house
+        this.scene.add(textMesh);
+        this.tanmaiText = textMesh;
+        
+        // Add glow behind text
+        const glowGeom = new THREE.PlaneGeometry(4.5, 1.5);
+        const glowMat = new THREE.MeshBasicMaterial({
+            color: 0xff6b8b,
+            transparent: true,
+            opacity: 0.2,
+            side: THREE.DoubleSide
+        });
+        const glow = new THREE.Mesh(glowGeom, glowMat);
+        glow.position.copy(textMesh.position);
+        glow.position.z -= 0.1;
+        this.scene.add(glow);
+        this.tanmaiGlow = glow;
     }
     
     createProceduralPostbox() {
@@ -566,165 +584,32 @@ class TansSanctuary {
         body.castShadow = true;
         group.add(body);
         
-        // Top (rounded)
+        // Top
         const topGeom = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 32, 1, false, 0, Math.PI);
         const top = new THREE.Mesh(topGeom, bodyMat);
         top.rotation.x = Math.PI / 2;
         top.rotation.z = Math.PI / 2;
         top.position.set(0, 1.8, 0);
-        top.castShadow = true;
         group.add(top);
         
         // Post
         const postGeom = new THREE.CylinderGeometry(0.1, 0.1, 0.6, 16);
-        const postMat = new THREE.MeshStandardMaterial({
-            color: 0x333333,
-            roughness: 0.5,
-            metalness: 0.5
-        });
+        const postMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
         const post = new THREE.Mesh(postGeom, postMat);
         post.position.y = 0.3;
         group.add(post);
         
-        // Slot
-        const slotGeom = new THREE.BoxGeometry(0.5, 0.05, 0.1);
-        const slotMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-        const slot = new THREE.Mesh(slotGeom, slotMat);
-        slot.position.set(0, 1.5, 0.31);
-        group.add(slot);
-        
-        // Heart decoration
-        const heartShape = new THREE.Shape();
-        const x = 0, y = 0;
-        heartShape.moveTo(x, y + 0.1);
-        heartShape.bezierCurveTo(x, y + 0.15, x - 0.05, y + 0.2, x - 0.1, y + 0.2);
-        heartShape.bezierCurveTo(x - 0.2, y + 0.2, x - 0.2, y + 0.05, x - 0.2, y + 0.05);
-        heartShape.bezierCurveTo(x - 0.2, y - 0.05, x - 0.1, y - 0.15, x, y - 0.2);
-        heartShape.bezierCurveTo(x + 0.1, y - 0.15, x + 0.2, y - 0.05, x + 0.2, y + 0.05);
-        heartShape.bezierCurveTo(x + 0.2, y + 0.05, x + 0.2, y + 0.2, x + 0.1, y + 0.2);
-        heartShape.bezierCurveTo(x + 0.05, y + 0.2, x, y + 0.15, x, y + 0.1);
-        
-        const heartGeom = new THREE.ExtrudeGeometry(heartShape, {
-            depth: 0.02,
-            bevelEnabled: false
-        });
-        const heartMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const heart = new THREE.Mesh(heartGeom, heartMat);
-        heart.scale.set(0.8, 0.8, 0.8);
-        heart.position.set(0, 1.1, 0.32);
-        group.add(heart);
-        
-        // Glow
-        const glowGeom = new THREE.SphereGeometry(0.8, 16, 16);
-        const glowMat = new THREE.MeshBasicMaterial({
-            color: 0xff6b8b,
-            transparent: true,
-            opacity: 0.15
-        });
-        const glow = new THREE.Mesh(glowGeom, glowMat);
-        glow.position.y = 1.3;
-        group.add(glow);
-        this.postboxGlow = glow;
-        
-        group.position.set(4, 0, -2);
+        group.position.set(6, 0, 2);
         this.scene.add(group);
-        this.proceduralPostbox = group;
+        this.models.postbox = group;
         
         // Add to interactables
         this.interactables.push({
             object: group,
-            name: 'Postbox',
-            description: 'Open to read your letter 💌',
+            name: 'Love Letter 💌',
+            description: 'Press E to read your letter',
             action: () => this.openLetter()
         });
-    }
-    
-    createProceduralCreatures() {
-        // Create simple floating jellyfish-like creatures
-        for (let i = 0; i < 8; i++) {
-            const group = new THREE.Group();
-            
-            // Bell
-            const bellGeom = new THREE.SphereGeometry(0.5, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-            const bellMat = new THREE.MeshStandardMaterial({
-                color: new THREE.Color().setHSL(0.8 + Math.random() * 0.2, 0.6, 0.6),
-                transparent: true,
-                opacity: 0.7,
-                side: THREE.DoubleSide
-            });
-            const bell = new THREE.Mesh(bellGeom, bellMat);
-            bell.rotation.x = Math.PI;
-            group.add(bell);
-            
-            // Tentacles
-            const tentacleMat = new THREE.MeshBasicMaterial({
-                color: bellMat.color,
-                transparent: true,
-                opacity: 0.5
-            });
-            
-            for (let j = 0; j < 5; j++) {
-                const tentGeom = new THREE.CylinderGeometry(0.02, 0.01, 1 + Math.random(), 8);
-                const tentacle = new THREE.Mesh(tentGeom, tentacleMat);
-                tentacle.position.set(
-                    (Math.random() - 0.5) * 0.3,
-                    -0.5 - Math.random() * 0.3,
-                    (Math.random() - 0.5) * 0.3
-                );
-                group.add(tentacle);
-            }
-            
-            group.position.set(
-                (Math.random() - 0.5) * 30,
-                5 + Math.random() * 10,
-                (Math.random() - 0.5) * 30
-            );
-            
-            this.scene.add(group);
-            this.floatingObjects.push({
-                mesh: group,
-                speed: 0.2 + Math.random() * 0.2,
-                offset: Math.random() * Math.PI * 2
-            });
-        }
-    }
-    
-    createProceduralPlanets() {
-        // Large planet in distance
-        const planetGeom = new THREE.SphereGeometry(15, 32, 32);
-        const planetMat = new THREE.MeshStandardMaterial({
-            color: 0x9966ff,
-            roughness: 0.8,
-            metalness: 0.1
-        });
-        const planet = new THREE.Mesh(planetGeom, planetMat);
-        planet.position.set(-80, 30, -100);
-        this.scene.add(planet);
-        
-        // Ring
-        const ringGeom = new THREE.RingGeometry(20, 28, 64);
-        const ringMat = new THREE.MeshBasicMaterial({
-            color: 0xffccdd,
-            transparent: true,
-            opacity: 0.4,
-            side: THREE.DoubleSide
-        });
-        const ring = new THREE.Mesh(ringGeom, ringMat);
-        ring.position.copy(planet.position);
-        ring.rotation.x = Math.PI / 3;
-        this.scene.add(ring);
-        
-        // Small moon
-        const moonGeom = new THREE.SphereGeometry(5, 16, 16);
-        const moonMat = new THREE.MeshStandardMaterial({
-            color: 0xffddaa,
-            emissive: 0xffddaa,
-            emissiveIntensity: 0.3
-        });
-        const moon = new THREE.Mesh(moonGeom, moonMat);
-        moon.position.set(50, 40, -80);
-        this.scene.add(moon);
-        this.moon = moon;
     }
     
     setupControls() {
@@ -734,6 +619,10 @@ class TansSanctuary {
             
             if (e.code === 'KeyE' && this.currentTarget && this.state.started) {
                 this.currentTarget.action();
+            }
+            
+            if (e.code === 'Escape' && this.state.started) {
+                document.exitPointerLock();
             }
         });
         
@@ -774,15 +663,139 @@ class TansSanctuary {
             this.closeLetter();
         });
         
-        // Click backdrop to close
         document.querySelector('#letter-modal .modal-backdrop').addEventListener('click', () => {
             this.closeLetter();
         });
     }
     
+    setupAudio() {
+        // Create audio drop zone
+        const dropZone = document.getElementById('music-drop-zone');
+        const fileInput = document.getElementById('music-file-input');
+        
+        if (dropZone) {
+            // Drag and drop
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('audio/')) {
+                    this.loadAudioFile(file);
+                }
+            });
+            
+            // Click to select
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this.loadAudioFile(file);
+                }
+            });
+        }
+        
+        // Play/Pause button
+        const playBtn = document.getElementById('music-play-btn');
+        if (playBtn) {
+            playBtn.addEventListener('click', () => {
+                this.toggleMusic();
+            });
+        }
+        
+        // Volume control
+        const volumeSlider = document.getElementById('music-volume');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                if (this.gainNode) {
+                    this.gainNode.gain.value = e.target.value / 100;
+                }
+            });
+        }
+    }
+    
+    loadAudioFile(file) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.gainNode = this.audioContext.createGain();
+                    this.gainNode.connect(this.audioContext.destination);
+                    this.gainNode.gain.value = 0.5;
+                }
+                
+                // Stop current audio
+                if (this.audioSource) {
+                    this.audioSource.stop();
+                }
+                
+                // Decode and play
+                this.audioBuffer = await this.audioContext.decodeAudioData(e.target.result);
+                
+                // Update UI
+                const musicName = document.getElementById('music-name');
+                const dropZone = document.getElementById('music-drop-zone');
+                if (musicName) musicName.textContent = file.name;
+                if (dropZone) dropZone.classList.add('has-music');
+                
+                // Auto play
+                this.playMusic();
+                
+            } catch (error) {
+                console.error('Error loading audio:', error);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    
+    playMusic() {
+        if (!this.audioBuffer || !this.audioContext) return;
+        
+        this.audioSource = this.audioContext.createBufferSource();
+        this.audioSource.buffer = this.audioBuffer;
+        this.audioSource.loop = true;
+        this.audioSource.connect(this.gainNode);
+        this.audioSource.start();
+        this.state.musicPlaying = true;
+        
+        const playBtn = document.getElementById('music-play-btn');
+        if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    }
+    
+    pauseMusic() {
+        if (this.audioSource) {
+            this.audioSource.stop();
+            this.state.musicPlaying = false;
+            
+            const playBtn = document.getElementById('music-play-btn');
+            if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    }
+    
+    toggleMusic() {
+        if (this.state.musicPlaying) {
+            this.pauseMusic();
+        } else if (this.audioBuffer) {
+            this.playMusic();
+        }
+    }
+    
     startGame() {
         document.getElementById('main-menu').classList.add('hidden');
         document.getElementById('hud').classList.remove('hidden');
+        document.getElementById('music-player').classList.remove('hidden');
         this.state.started = true;
         document.getElementById('game-canvas').requestPointerLock();
     }
@@ -800,7 +813,6 @@ class TansSanctuary {
         if (!this.state.letterRead) {
             this.state.letterRead = true;
             
-            // Trigger fireworks after a delay
             setTimeout(() => {
                 this.showFireworks();
                 this.showValentineMessage();
@@ -827,7 +839,6 @@ class TansSanctuary {
             const y = 20 + Math.random() * 40;
             const color = colors[Math.floor(Math.random() * colors.length)];
             
-            // Create burst particles
             for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'firework';
@@ -842,7 +853,6 @@ class TansSanctuary {
             }
         };
         
-        // Launch multiple fireworks
         for (let i = 0; i < 15; i++) {
             setTimeout(launchFirework, i * 300);
         }
@@ -870,7 +880,6 @@ class TansSanctuary {
         const moveSpeed = this.player.speed * delta;
         const direction = new THREE.Vector3();
         
-        // Calculate forward/right vectors based on yaw only
         const forward = new THREE.Vector3(
             -Math.sin(this.player.yaw),
             0,
@@ -882,7 +891,6 @@ class TansSanctuary {
             -Math.sin(this.player.yaw)
         );
         
-        // Movement input
         if (this.keys['KeyW']) direction.add(forward);
         if (this.keys['KeyS']) direction.sub(forward);
         if (this.keys['KeyD']) direction.add(right);
@@ -897,10 +905,10 @@ class TansSanctuary {
         const distFromCenter = Math.sqrt(
             this.player.position.x ** 2 + this.player.position.z ** 2
         );
-        if (distFromCenter > 14) {
+        if (distFromCenter > 18) {
             const angle = Math.atan2(this.player.position.z, this.player.position.x);
-            this.player.position.x = Math.cos(angle) * 14;
-            this.player.position.z = Math.sin(angle) * 14;
+            this.player.position.x = Math.cos(angle) * 18;
+            this.player.position.z = Math.sin(angle) * 18;
         }
         
         // Update camera
@@ -918,7 +926,7 @@ class TansSanctuary {
         const crosshair = document.querySelector('.crosshair');
         
         let nearestTarget = null;
-        let nearestDist = 5; // Interaction range
+        let nearestDist = 6;
         
         for (const interactable of this.interactables) {
             const objPos = new THREE.Vector3();
@@ -927,13 +935,12 @@ class TansSanctuary {
             const dist = this.player.position.distanceTo(objPos);
             
             if (dist < nearestDist) {
-                // Check if looking at it
                 const toObj = objPos.clone().sub(this.player.position).normalize();
                 const lookDir = new THREE.Vector3(0, 0, -1);
                 lookDir.applyQuaternion(this.camera.quaternion);
                 
                 const dot = toObj.dot(lookDir);
-                if (dot > 0.7) {
+                if (dot > 0.6) {
                     nearestDist = dist;
                     nearestTarget = interactable;
                 }
@@ -952,24 +959,37 @@ class TansSanctuary {
         }
     }
     
-    updateAnimations(time) {
-        // Floating creatures
+    updateAnimations(delta, time) {
+        // Update all animation mixers (plays GLB animations)
+        for (const mixer of this.mixers) {
+            mixer.update(delta);
+        }
+        
+        // Floating/orbiting objects
         for (const obj of this.floatingObjects) {
-            const t = time * obj.speed + obj.offset;
-            obj.mesh.position.y += Math.sin(t) * 0.003;
+            const t = time + obj.offset;
             
-            if (obj.isPhoenix) {
-                obj.mesh.position.x = 15 + Math.sin(t * 0.3) * 10;
-                obj.mesh.position.z = -20 + Math.cos(t * 0.3) * 10;
-                obj.mesh.rotation.y = t * 0.3 + Math.PI;
-            } else {
-                obj.mesh.rotation.y += 0.002;
+            if (obj.config.orbit) {
+                // Phoenix orbits around
+                const radius = 25;
+                obj.mesh.position.x = Math.sin(t * 0.2) * radius;
+                obj.mesh.position.z = Math.cos(t * 0.2) * radius - 10;
+                obj.mesh.position.y = 12 + Math.sin(t * 0.5) * 3;
+                obj.mesh.rotation.y = -t * 0.2 + Math.PI / 2;
+            } else if (obj.config.float) {
+                // Gentle floating
+                obj.mesh.position.y = obj.basePosition.y + Math.sin(t * 0.5) * 0.5;
+                obj.mesh.position.x = obj.basePosition.x + Math.sin(t * 0.3) * 0.3;
+                obj.mesh.rotation.y += delta * 0.2;
+            } else if (obj.config.spin) {
+                // Planet slow rotation
+                obj.mesh.rotation.y += delta * 0.05;
             }
         }
         
         // Stars twinkle
         if (this.stars) {
-            this.stars.rotation.y += 0.0001;
+            this.stars.rotation.y += delta * 0.01;
         }
         
         // Floating particles
@@ -979,7 +999,7 @@ class TansSanctuary {
                 positions[i] += Math.sin(time + i) * 0.002;
             }
             this.floatingParticles.geometry.attributes.position.needsUpdate = true;
-            this.floatingParticles.rotation.y += 0.0003;
+            this.floatingParticles.rotation.y += delta * 0.02;
         }
         
         // Glow ring pulse
@@ -987,15 +1007,13 @@ class TansSanctuary {
             this.glowRing.material.opacity = 0.4 + Math.sin(time * 2) * 0.2;
         }
         
-        // Postbox glow pulse
-        if (this.postboxGlow) {
-            this.postboxGlow.material.opacity = 0.1 + Math.sin(time * 3) * 0.1;
-            this.postboxGlow.scale.setScalar(1 + Math.sin(time * 2) * 0.1);
+        // Tanmai text glow
+        if (this.tanmaiText) {
+            this.tanmaiText.lookAt(this.camera.position);
         }
-        
-        // Moon glow
-        if (this.moon) {
-            this.moon.material.emissiveIntensity = 0.3 + Math.sin(time) * 0.1;
+        if (this.tanmaiGlow) {
+            this.tanmaiGlow.lookAt(this.camera.position);
+            this.tanmaiGlow.material.opacity = 0.15 + Math.sin(time * 3) * 0.1;
         }
     }
     
@@ -1007,7 +1025,7 @@ class TansSanctuary {
         
         this.updatePlayer(delta);
         this.updateInteraction();
-        this.updateAnimations(time);
+        this.updateAnimations(delta, time);
         
         this.renderer.render(this.scene, this.camera);
     }

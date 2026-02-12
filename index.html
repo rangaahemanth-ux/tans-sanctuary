@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tan's Sanctuary ✦ A Valentine Space</title>
+    <title>Tanmai ✦ A Valentine Space</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,7 +21,7 @@
                 <div class="ring r3"></div>
             </div>
             <div class="loader-icon">💖</div>
-            <h1 class="loader-title">Tan's Sanctuary</h1>
+            <h1 class="loader-title">Tanmai</h1>
             <p class="loader-subtitle">Loading your special place...</p>
             <div class="loader-progress">
                 <div class="loader-bar" id="load-bar"></div>
@@ -60,12 +61,43 @@
             <kbd>E</kbd>
             <span id="interact-text">Interact</span>
         </div>
+        
+        <!-- Instructions hint -->
+        <div class="controls-hint">
+            <span><kbd>WASD</kbd> Move</span>
+            <span><kbd>Mouse</kbd> Look</span>
+            <span><kbd>E</kbd> Interact</span>
+        </div>
+    </div>
+
+    <!-- Music Player -->
+    <div id="music-player" class="music-player hidden">
+        <div class="music-header">
+            <i class="fas fa-music"></i>
+            <span>Background Music</span>
+        </div>
+        <div id="music-drop-zone" class="music-drop-zone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drop music file here</p>
+            <p class="music-hint">or click to browse</p>
+            <input type="file" id="music-file-input" accept="audio/*" hidden>
+        </div>
+        <div class="music-controls">
+            <span id="music-name" class="music-name">No music loaded</span>
+            <div class="music-buttons">
+                <button id="music-play-btn" class="music-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <input type="range" id="music-volume" class="music-volume" min="0" max="100" value="50">
+                <i class="fas fa-volume-up volume-icon"></i>
+            </div>
+        </div>
     </div>
 
     <!-- Letter Modal -->
     <div id="letter-modal" class="modal hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal-content letter-content">
+        <div class="modal-content letter-modal-content">
             <button class="modal-close" id="close-letter">&times;</button>
             <div class="letter-paper">
                 <div class="letter-header">
@@ -75,10 +107,24 @@
                 </div>
                 <div class="letter-body" id="letter-body">
                     <p>My dearest Tanmai,</p>
-                    <p>This virtual sanctuary was created just for you. Every star in this sky was placed here thinking of you, every floating creature moves with the rhythm of my heart.</p>
-                    <p>You are my universe, my everything. In this space, I hope you feel how much you mean to me.</p>
-                    <p>When you're here, know that my love surrounds you, even across the distance. This is our special place.</p>
-                    <p>Forever yours,<br>❤️</p>
+                    
+                    <p>This virtual sanctuary was created just for you. Every star in this infinite sky was placed here with thoughts of you dancing through my mind, every floating creature moves with the rhythm of my heart beating for you.</p>
+                    
+                    <p>You are my universe, my everything, my reason to smile every single day. In this space, I hope you feel the warmth of my love wrapping around you like the softest blanket on a cold winter night.</p>
+                    
+                    <p>When you're here, wandering among the stars and watching the phoenix soar, know that my love surrounds you completely. Even across any distance, my heart is always with you. This is our special place — a sanctuary where our love lives forever.</p>
+                    
+                    <p>Every moment with you is a gift I treasure. Your smile lights up my world brighter than all these stars combined. Your laugh is my favorite melody. Your love is my greatest blessing.</p>
+                    
+                    <p>I created this world for you because you deserve magic. You deserve wonder. You deserve to know just how deeply, completely, and endlessly you are loved.</p>
+                    
+                    <p>Thank you for being you. Thank you for choosing me. Thank you for every moment we share together.</p>
+                    
+                    <p class="letter-signature">
+                        Forever and always yours,<br>
+                        With all my love 💕<br>
+                        <span class="signature-heart">❤️</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -90,7 +136,7 @@
     <!-- Valentine Message -->
     <div id="valentine-message" class="hidden">
         <h1>Happy Valentine's Day</h1>
-        <p>I love you, Tanmai 💕</p>
+        <p>I see you, Tanmai 💕</p>
     </div>
 
     <!-- Canvas -->
@@ -99,7 +145,6 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="game.js"></script>
 </body>
 </html>

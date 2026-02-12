@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   TAN'S SANCTUARY — Clean, Modern Styles
+   TAN'S SANCTUARY — Complete Edition Styles
    ═══════════════════════════════════════════════════════════════ */
 
 *, *::before, *::after {
@@ -18,6 +18,7 @@
     --text: #f5f5f7;
     --text-dim: rgba(255, 255, 255, 0.6);
     --glass: rgba(10, 10, 30, 0.85);
+    --glass-light: rgba(255, 255, 255, 0.05);
     --font-display: 'Cormorant Garamond', Georgia, serif;
     --font-body: 'Inter', -apple-system, sans-serif;
 }
@@ -279,7 +280,7 @@ html, body {
     color: var(--text-dim);
 }
 
-.control kbd {
+.control kbd, .controls-hint kbd {
     display: inline-block;
     background: rgba(255, 255, 255, 0.1);
     padding: 4px 10px;
@@ -373,8 +374,156 @@ html, body {
     font-size: 0.9rem;
 }
 
+.controls-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    opacity: 0.6;
+}
+
 /* ═══════════════════════════════════════════════════════════════
-   MODAL
+   MUSIC PLAYER
+   ═══════════════════════════════════════════════════════════════ */
+.music-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: var(--glass);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    z-index: 60;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.music-player.hidden {
+    display: none;
+}
+
+.music-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(255, 107, 139, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.music-header i {
+    color: var(--rose);
+}
+
+.music-drop-zone {
+    padding: 25px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    margin: 12px;
+    border-radius: 10px;
+}
+
+.music-drop-zone:hover,
+.music-drop-zone.drag-over {
+    background: rgba(255, 107, 139, 0.1);
+    border-color: var(--rose);
+}
+
+.music-drop-zone.has-music {
+    display: none;
+}
+
+.music-drop-zone i {
+    font-size: 2rem;
+    color: var(--rose);
+    margin-bottom: 10px;
+}
+
+.music-drop-zone p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin: 5px 0;
+}
+
+.music-hint {
+    font-size: 0.75rem !important;
+    opacity: 0.5;
+}
+
+.music-controls {
+    padding: 12px 16px;
+}
+
+.music-name {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.music-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.music-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: var(--rose);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.music-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px var(--rose-glow);
+}
+
+.music-volume {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.music-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--rose);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.volume-icon {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL - FIXED SCROLLING
    ═══════════════════════════════════════════════════════════════ */
 .modal {
     position: fixed;
@@ -404,13 +553,15 @@ html, body {
     position: relative;
     max-width: 600px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 85vh;
     background: var(--glass);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     overflow: hidden;
     transform: scale(0.9) translateY(20px);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
 }
 
 .modal:not(.hidden) .modal-content {
@@ -423,7 +574,7 @@ html, body {
     right: 20px;
     background: none;
     border: none;
-    color: var(--text-dim);
+    color: rgba(0, 0, 0, 0.4);
     font-size: 2rem;
     cursor: pointer;
     transition: color 0.2s, transform 0.2s;
@@ -435,11 +586,37 @@ html, body {
     transform: rotate(90deg);
 }
 
-/* Letter Styles */
+/* Letter Styles - FIXED SCROLLING */
+.letter-modal-content {
+    max-height: 85vh;
+}
+
 .letter-paper {
     padding: 50px 40px;
     background: linear-gradient(135deg, #fffaf0, #fef6e8);
     color: #2a2a2a;
+    max-height: 85vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for letter */
+.letter-paper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.letter-paper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.letter-paper::-webkit-scrollbar-thumb {
+    background: var(--rose);
+    border-radius: 4px;
+}
+
+.letter-paper::-webkit-scrollbar-thumb:hover {
+    background: var(--rose-light);
 }
 
 .letter-header {
@@ -476,10 +653,29 @@ html, body {
 
 .letter-body p {
     margin-bottom: 1.2em;
+    text-indent: 2em;
 }
 
-.letter-body p:last-child {
-    margin-bottom: 0;
+.letter-body p:first-child {
+    text-indent: 0;
+}
+
+.letter-signature {
+    text-align: right;
+    margin-top: 30px;
+    font-style: italic;
+    text-indent: 0 !important;
+}
+
+.signature-heart {
+    font-size: 2rem;
+    display: inline-block;
+    animation: heartBeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -558,6 +754,8 @@ html, body {
     .letter-header h2 { font-size: 1.4rem; }
     .letter-body { font-size: 1rem; }
     #valentine-message h1 { font-size: 2.5rem; }
+    .music-player { width: 250px; bottom: 10px; right: 10px; }
+    .controls-hint { display: none; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
