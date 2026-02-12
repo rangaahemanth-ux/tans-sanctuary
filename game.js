@@ -297,7 +297,8 @@ class TansSanctuary {
                 name: 'house',
                 scale: 1.2, 
                 position: [0, 0, -5],
-                rotation: [0, 0, 0]
+                rotation: [0, 0, 0],
+                noAnimation: true  // Keep house stable, no animation
             },
             { 
                 file: 'red_post_box.glb', 
@@ -305,16 +306,17 @@ class TansSanctuary {
                 scale: 1.5, 
                 position: [6, 0, 2],
                 rotation: [0, -0.5, 0],
-                interactive: true
+                interactive: true,
+                noAnimation: true
             },
             { 
                 file: 'phoenix_on_fire_update.glb', 
                 name: 'phoenix',
-                scale: 1.0, 
-                position: [15, 15, -25],
+                scale: 0.6,  // Smaller phoenix (was 1.0)
+                position: [15, 12, -25],
                 rotation: [0, 0, 0],
                 animate: true,
-                orbit: true
+                orbit: true  // Phoenix flies around
             },
             { 
                 file: 'jellyray.glb', 
@@ -340,6 +342,36 @@ class TansSanctuary {
                 scale: 0.5, 
                 position: [-12, 6, 5],
                 rotation: [0, 0.5, 0],
+                animate: true,
+                float: true
+            },
+            {
+                file: 'mythic_whale_-_stylized_animated_model.glb',
+                name: 'mythicWhale',
+                scale: 1.5,
+                position: [-30, 20, -40],
+                rotation: [0, 0.5, 0],
+                animate: true,
+                orbit: true,  // Whale swims around
+                orbitRadius: 40,
+                orbitSpeed: 0.1,
+                orbitHeight: 18
+            },
+            {
+                file: 'whale_shark_fantasy.glb',
+                name: 'whaleShark1',
+                scale: 0.8,
+                position: [20, 10, -30],
+                rotation: [0, -1, 0],
+                animate: true,
+                float: true
+            },
+            {
+                file: 'whale_shark_fantasy (1).glb',
+                name: 'whaleShark2',
+                scale: 0.7,
+                position: [-25, 14, 20],
+                rotation: [0, 2, 0],
                 animate: true,
                 float: true
             },
@@ -427,8 +459,8 @@ class TansSanctuary {
                     this.scene.add(model);
                     this.models[config.name] = model;
                     
-                    // Setup animations if the model has them
-                    if (gltf.animations && gltf.animations.length > 0) {
+                    // Setup animations if the model has them (unless noAnimation flag is set)
+                    if (gltf.animations && gltf.animations.length > 0 && !config.noAnimation) {
                         const mixer = new THREE.AnimationMixer(model);
                         gltf.animations.forEach((clip) => {
                             const action = mixer.clipAction(clip);
@@ -497,6 +529,27 @@ class TansSanctuary {
                     (Math.random() - 0.5) * 35
                 );
                 clone.scale.setScalar(0.3 + Math.random() * 0.3);
+                clone.rotation.y = Math.random() * Math.PI * 2;
+                this.scene.add(clone);
+                this.floatingObjects.push({
+                    mesh: clone,
+                    config: { float: true },
+                    basePosition: clone.position.clone(),
+                    offset: Math.random() * Math.PI * 2
+                });
+            }
+        }
+        
+        // Clone whale sharks for more variety
+        if (this.models.whaleShark1) {
+            for (let i = 0; i < 2; i++) {
+                const clone = this.models.whaleShark1.clone();
+                clone.position.set(
+                    (Math.random() - 0.5) * 50,
+                    8 + Math.random() * 15,
+                    (Math.random() - 0.5) * 50
+                );
+                clone.scale.setScalar(0.5 + Math.random() * 0.4);
                 clone.rotation.y = Math.random() * Math.PI * 2;
                 this.scene.add(clone);
                 this.floatingObjects.push({
@@ -952,12 +1005,16 @@ class TansSanctuary {
             const t = time + obj.offset;
             
             if (obj.config.orbit) {
-                // Phoenix orbits around
-                const radius = 25;
-                obj.mesh.position.x = Math.sin(t * 0.2) * radius;
-                obj.mesh.position.z = Math.cos(t * 0.2) * radius - 10;
-                obj.mesh.position.y = 12 + Math.sin(t * 0.5) * 3;
-                obj.mesh.rotation.y = -t * 0.2 + Math.PI / 2;
+                // Get orbit parameters (with defaults for phoenix)
+                const radius = obj.config.orbitRadius || 25;
+                const speed = obj.config.orbitSpeed || 0.2;
+                const height = obj.config.orbitHeight || 12;
+                
+                // Orbit around the center
+                obj.mesh.position.x = Math.sin(t * speed) * radius;
+                obj.mesh.position.z = Math.cos(t * speed) * radius - 10;
+                obj.mesh.position.y = height + Math.sin(t * 0.5) * 3;
+                obj.mesh.rotation.y = -t * speed + Math.PI / 2;
             } else if (obj.config.float) {
                 // Gentle floating
                 obj.mesh.position.y = obj.basePosition.y + Math.sin(t * 0.5) * 0.5;
