@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// TAN'S SANCTUARY — Complete Edition with Animations & Music
+// TAN'S HOME — Final Edition with Animal Cards & Natural Movement
 // ═══════════════════════════════════════════════════════════════════════════
 
-class TansSanctuary {
+class TansHome {
     constructor() {
         // Three.js core
         this.scene = null;
@@ -40,19 +40,16 @@ class TansSanctuary {
         // 3D Models
         this.models = {};
         
-        // Interactive objects
+        // Interactive objects (postbox + animals)
         this.interactables = [];
         this.currentTarget = null;
         
-        // Animations
+        // Floating objects for animation
         this.floatingObjects = [];
-        this.particles = [];
         
         // Audio
-        this.audioContext = null;
-        this.audioSource = null;
-        this.audioBuffer = null;
-        this.gainNode = null;
+        this.audioElement = null;
+        this.musicReady = false;
         
         this.init();
     }
@@ -82,7 +79,7 @@ class TansSanctuary {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.0;
+        this.renderer.toneMappingExposure = 1.2;
         
         this.scene = new THREE.Scene();
         
@@ -104,48 +101,43 @@ class TansSanctuary {
     }
     
     setupLights() {
-        // Ambient light
-        const ambient = new THREE.AmbientLight(0x404080, 0.5);
+        // Ambient light - brighter
+        const ambient = new THREE.AmbientLight(0x6080a0, 0.7);
         this.scene.add(ambient);
         
-        // Main directional light (moonlight)
-        const moonLight = new THREE.DirectionalLight(0xaaccff, 0.8);
+        // Main directional light
+        const moonLight = new THREE.DirectionalLight(0xaaccff, 1.0);
         moonLight.position.set(30, 50, 20);
         moonLight.castShadow = true;
         moonLight.shadow.mapSize.width = 2048;
         moonLight.shadow.mapSize.height = 2048;
-        moonLight.shadow.camera.near = 0.5;
-        moonLight.shadow.camera.far = 200;
-        moonLight.shadow.camera.left = -50;
-        moonLight.shadow.camera.right = 50;
-        moonLight.shadow.camera.top = 50;
-        moonLight.shadow.camera.bottom = -50;
         this.scene.add(moonLight);
         
         // Warm accent lights
-        const warmLight = new THREE.PointLight(0xff8866, 1.5, 30);
-        warmLight.position.set(0, 3, 0);
+        const warmLight = new THREE.PointLight(0xff8866, 2, 40);
+        warmLight.position.set(0, 5, 0);
         this.scene.add(warmLight);
         
-        const roseLight = new THREE.PointLight(0xff6b8b, 0.8, 25);
-        roseLight.position.set(-5, 5, -5);
+        const roseLight = new THREE.PointLight(0xff6b8b, 1, 30);
+        roseLight.position.set(-5, 8, -5);
         this.scene.add(roseLight);
         
-        // Add more lights for better model visibility
-        const fillLight = new THREE.PointLight(0x6688ff, 0.5, 50);
-        fillLight.position.set(10, 10, 10);
+        // Blue fill light
+        const fillLight = new THREE.PointLight(0x6688ff, 0.8, 60);
+        fillLight.position.set(10, 15, 10);
         this.scene.add(fillLight);
     }
     
     createEnvironment() {
         this.createSpaceSkybox();
         this.createStars();
+        this.createPlanets(); // Add visible planets!
         this.createGround();
         this.createParticles();
     }
     
     createSpaceSkybox() {
-        const geometry = new THREE.SphereGeometry(500, 64, 64);
+        const geometry = new THREE.SphereGeometry(800, 64, 64);
         
         const vertexShader = `
             varying vec3 vWorldPosition;
@@ -160,9 +152,9 @@ class TansSanctuary {
             varying vec3 vWorldPosition;
             void main() {
                 float y = normalize(vWorldPosition).y;
-                vec3 bottomColor = vec3(0.02, 0.01, 0.05);
-                vec3 topColor = vec3(0.05, 0.02, 0.15);
-                vec3 midColor = vec3(0.1, 0.03, 0.2);
+                vec3 bottomColor = vec3(0.02, 0.01, 0.08);
+                vec3 topColor = vec3(0.08, 0.04, 0.2);
+                vec3 midColor = vec3(0.15, 0.05, 0.25);
                 
                 vec3 color;
                 if (y < 0.0) {
@@ -186,13 +178,14 @@ class TansSanctuary {
     }
     
     createStars() {
-        const starCount = 3000;
+        const starCount = 4000;
         const positions = new Float32Array(starCount * 3);
         const colors = new Float32Array(starCount * 3);
+        const sizes = new Float32Array(starCount);
         
         for (let i = 0; i < starCount; i++) {
             const i3 = i * 3;
-            const radius = 200 + Math.random() * 300;
+            const radius = 300 + Math.random() * 400;
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.acos(2 * Math.random() - 1);
             
@@ -201,13 +194,15 @@ class TansSanctuary {
             positions[i3 + 2] = radius * Math.cos(phi);
             
             const colorChoice = Math.random();
-            if (colorChoice < 0.7) {
+            if (colorChoice < 0.6) {
                 colors[i3] = 1; colors[i3 + 1] = 1; colors[i3 + 2] = 1;
-            } else if (colorChoice < 0.85) {
+            } else if (colorChoice < 0.8) {
                 colors[i3] = 1; colors[i3 + 1] = 0.9; colors[i3 + 2] = 0.7;
             } else {
                 colors[i3] = 0.7; colors[i3 + 1] = 0.8; colors[i3 + 2] = 1;
             }
+            
+            sizes[i] = Math.random() * 2 + 0.5;
         }
         
         const geometry = new THREE.BufferGeometry();
@@ -215,7 +210,7 @@ class TansSanctuary {
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         
         const material = new THREE.PointsMaterial({
-            size: 1.5,
+            size: 2,
             vertexColors: true,
             transparent: true,
             opacity: 0.9,
@@ -227,9 +222,94 @@ class TansSanctuary {
         this.stars = stars;
     }
     
+    createPlanets() {
+        // JUPITER - Big orange/brown planet
+        const jupiterGeom = new THREE.SphereGeometry(25, 32, 32);
+        const jupiterMat = new THREE.MeshStandardMaterial({
+            color: 0xd4a574,
+            roughness: 0.8,
+            metalness: 0.1
+        });
+        const jupiter = new THREE.Mesh(jupiterGeom, jupiterMat);
+        jupiter.position.set(-150, 80, -200);
+        this.scene.add(jupiter);
+        
+        // Jupiter bands (stripes)
+        const bandGeom = new THREE.TorusGeometry(25.5, 0.5, 8, 64);
+        const bandMat = new THREE.MeshBasicMaterial({ color: 0xc4956a });
+        for (let i = 0; i < 5; i++) {
+            const band = new THREE.Mesh(bandGeom, bandMat);
+            band.position.copy(jupiter.position);
+            band.rotation.x = Math.PI / 2;
+            band.position.y += (i - 2) * 6;
+            band.scale.set(1, 1, 0.3);
+            this.scene.add(band);
+        }
+        
+        // SATURN - With rings!
+        const saturnGeom = new THREE.SphereGeometry(18, 32, 32);
+        const saturnMat = new THREE.MeshStandardMaterial({
+            color: 0xead6b8,
+            roughness: 0.7
+        });
+        const saturn = new THREE.Mesh(saturnGeom, saturnMat);
+        saturn.position.set(180, 60, -180);
+        this.scene.add(saturn);
+        
+        // Saturn rings
+        const ringGeom = new THREE.RingGeometry(25, 40, 64);
+        const ringMat = new THREE.MeshBasicMaterial({
+            color: 0xc9b896,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.7
+        });
+        const saturnRing = new THREE.Mesh(ringGeom, ringMat);
+        saturnRing.position.copy(saturn.position);
+        saturnRing.rotation.x = Math.PI / 2.5;
+        this.scene.add(saturnRing);
+        this.saturnRing = saturnRing;
+        
+        // MOON - Closer, glowing
+        const moonGeom = new THREE.SphereGeometry(8, 32, 32);
+        const moonMat = new THREE.MeshStandardMaterial({
+            color: 0xffffee,
+            emissive: 0xffffaa,
+            emissiveIntensity: 0.4
+        });
+        const moon = new THREE.Mesh(moonGeom, moonMat);
+        moon.position.set(60, 50, -100);
+        this.scene.add(moon);
+        this.moon = moon;
+        
+        // Moon glow
+        const moonGlowGeom = new THREE.SphereGeometry(12, 32, 32);
+        const moonGlowMat = new THREE.MeshBasicMaterial({
+            color: 0xffffcc,
+            transparent: true,
+            opacity: 0.15
+        });
+        const moonGlow = new THREE.Mesh(moonGlowGeom, moonGlowMat);
+        moonGlow.position.copy(moon.position);
+        this.scene.add(moonGlow);
+        
+        // MARS - Small red planet
+        const marsGeom = new THREE.SphereGeometry(6, 32, 32);
+        const marsMat = new THREE.MeshStandardMaterial({
+            color: 0xc1440e,
+            roughness: 0.9
+        });
+        const mars = new THREE.Mesh(marsGeom, marsMat);
+        mars.position.set(-80, 100, -150);
+        this.scene.add(mars);
+        
+        // Store for rotation
+        this.planets = { jupiter, saturn, moon, mars, saturnRing };
+    }
+    
     createGround() {
         // Ethereal floating platform
-        const geometry = new THREE.CylinderGeometry(20, 25, 2, 64);
+        const geometry = new THREE.CylinderGeometry(25, 30, 2, 64);
         const material = new THREE.MeshStandardMaterial({
             color: 0x1a1030,
             roughness: 0.8,
@@ -244,7 +324,7 @@ class TansSanctuary {
         this.scene.add(ground);
         
         // Glowing edge ring
-        const ringGeom = new THREE.TorusGeometry(22.5, 0.3, 16, 100);
+        const ringGeom = new THREE.TorusGeometry(27.5, 0.4, 16, 100);
         const ringMat = new THREE.MeshBasicMaterial({
             color: 0xff6b8b,
             transparent: true,
@@ -258,24 +338,24 @@ class TansSanctuary {
     }
     
     createParticles() {
-        const particleCount = 300;
+        const particleCount = 400;
         const positions = new Float32Array(particleCount * 3);
         
         for (let i = 0; i < particleCount; i++) {
             const i3 = i * 3;
-            positions[i3] = (Math.random() - 0.5) * 60;
-            positions[i3 + 1] = Math.random() * 30;
-            positions[i3 + 2] = (Math.random() - 0.5) * 60;
+            positions[i3] = (Math.random() - 0.5) * 80;
+            positions[i3 + 1] = Math.random() * 40;
+            positions[i3 + 2] = (Math.random() - 0.5) * 80;
         }
         
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         
         const material = new THREE.PointsMaterial({
-            size: 0.15,
+            size: 0.2,
             color: 0xff6b8b,
             transparent: true,
-            opacity: 0.6,
+            opacity: 0.5,
             blending: THREE.AdditiveBlending
         });
         
@@ -288,122 +368,136 @@ class TansSanctuary {
         const loadBar = document.getElementById('load-bar');
         const loadStatus = document.getElementById('load-status');
         
-        const modelPath = ''; // Models are in root directory
+        const modelPath = '';
         
-        // Model configurations - ALL your models
+        // Model configurations - Your actual files
         const modelConfigs = [
             { 
                 file: 'mushroom_water_house.glb', 
                 name: 'house',
-                scale: 1.2, 
+                scale: 1.5, 
                 position: [0, 0, -5],
                 rotation: [0, 0, 0],
-                noAnimation: true  // Keep house stable, no animation
+                noAnimation: true
             },
             { 
                 file: 'red_post_box.glb', 
                 name: 'postbox',
-                scale: 1.5, 
-                position: [6, 0, 2],
-                rotation: [0, -0.5, 0],
+                scale: 1.2, 
+                position: [5, 0, 3],
+                rotation: [0, -0.3, 0],
                 interactive: true,
+                interactType: 'letter',
                 noAnimation: true
             },
             { 
                 file: 'phoenix_on_fire_update.glb', 
                 name: 'phoenix',
-                scale: 0.6,  // Smaller phoenix (was 1.0)
-                position: [15, 12, -25],
+                scale: 0.15,  // MUCH smaller!
+                position: [0, 10, 0],
                 rotation: [0, 0, 0],
                 animate: true,
-                orbit: true  // Phoenix flies around
+                orbit: true,
+                orbitRadius: 15,
+                orbitSpeed: 0.15,
+                orbitHeight: 8,
+                interactive: true,
+                interactType: 'animal',
+                animalInfo: {
+                    name: '🔥 Phoenix',
+                    description: 'A mystical firebird that symbolizes eternal love and rebirth. It flies around protecting this sanctuary.',
+                    fact: 'Legend says if you see a phoenix, your wishes will come true!'
+                }
             },
             { 
                 file: 'jellyray.glb', 
                 name: 'jellyray1',
-                scale: 0.8, 
-                position: [-8, 8, -10],
+                scale: 0.5, 
+                position: [-6, 5, 3],
                 rotation: [0, 0, 0],
                 animate: true,
-                float: true
+                swim: true,
+                interactive: true,
+                interactType: 'animal',
+                animalInfo: {
+                    name: '🎐 Cosmic Jellyray',
+                    description: 'A graceful creature that glides through space, leaving trails of stardust.',
+                    fact: 'Jellyrays are attracted to love and happiness!'
+                }
             },
             { 
                 file: 'jellyray (1).glb', 
                 name: 'jellyray2',
-                scale: 0.6, 
-                position: [10, 12, -15],
+                scale: 0.4, 
+                position: [8, 6, -8],
                 rotation: [0, Math.PI, 0],
                 animate: true,
-                float: true
+                swim: true,
+                interactive: true,
+                interactType: 'animal',
+                animalInfo: {
+                    name: '✨ Starlight Jellyray',
+                    description: 'This rare species glows with the light of distant stars.',
+                    fact: 'Each jellyray carries memories of the cosmos!'
+                }
             },
             { 
                 file: 'bladderfish.glb', 
-                name: 'bladderfish1',
-                scale: 0.5, 
-                position: [-12, 6, 5],
+                name: 'bladderfish',
+                scale: 0.4, 
+                position: [-8, 4, -3],
                 rotation: [0, 0.5, 0],
                 animate: true,
-                float: true
+                swim: true,
+                interactive: true,
+                interactType: 'animal',
+                animalInfo: {
+                    name: '🐡 Space Bladderfish',
+                    description: 'A curious fish that floats through the void, bringing joy wherever it goes.',
+                    fact: 'Bladderfish love romantic places like this one!'
+                }
             },
             {
                 file: 'mythic_whale_-_stylized_animated_model.glb',
                 name: 'mythicWhale',
-                scale: 1.5,
-                position: [-30, 20, -40],
-                rotation: [0, 0.5, 0],
+                scale: 0.8,  // Smaller, closer
+                position: [0, 12, -15],
+                rotation: [0, 0, 0],
                 animate: true,
-                orbit: true,  // Whale swims around
-                orbitRadius: 40,
-                orbitSpeed: 0.1,
-                orbitHeight: 18
-            },
-            {
-                file: 'whale_shark_fantasy.glb',
-                name: 'whaleShark1',
-                scale: 0.8,
-                position: [20, 10, -30],
-                rotation: [0, -1, 0],
-                animate: true,
-                float: true
-            },
-            {
-                file: 'whale_shark_fantasy (1).glb',
-                name: 'whaleShark2',
-                scale: 0.7,
-                position: [-25, 14, 20],
-                rotation: [0, 2, 0],
-                animate: true,
-                float: true
+                orbit: true,
+                orbitRadius: 20,
+                orbitSpeed: 0.08,
+                orbitHeight: 12,
+                interactive: true,
+                interactType: 'animal',
+                animalInfo: {
+                    name: '🐋 Mythic Space Whale',
+                    description: 'An ancient guardian of love that swims through the stars, singing songs of the heart.',
+                    fact: 'This whale chose to protect Tan\'s Home because of the love here!'
+                }
             },
             { 
                 file: 'stylized_planet.glb', 
                 name: 'planet',
-                scale: 8, 
-                position: [-80, 40, -120],
+                scale: 5, 
+                position: [100, 30, -80],
                 rotation: [0.2, 0, 0.1],
                 spin: true
             },
             { 
-                file: 'deep_space_skybox_16k_with_planets.glb', 
-                name: 'skybox',
-                scale: 150, 
-                position: [0, 0, 0],
-                rotation: [0, 0, 0]
-            },
-            { 
                 file: 'furled_papyrus.glb', 
                 name: 'papyrus',
-                scale: 0.4, 
-                position: [6, 2.5, 2],
+                scale: 0.3, 
+                position: [5, 2.2, 3],
                 rotation: [0, 0.5, 0],
-                float: true
+                float: true,
+                noAnimation: true
             }
         ];
         
         let loaded = 0;
         const total = modelConfigs.length;
         
-        // Load each model
         for (const config of modelConfigs) {
             loadStatus.textContent = `Loading ${config.name}...`;
             
@@ -411,7 +505,7 @@ class TansSanctuary {
                 await this.loadModel(modelPath + config.file, config);
                 console.log(`✓ Loaded: ${config.name}`);
             } catch (error) {
-                console.log(`✗ Failed to load: ${config.name}`, error.message);
+                console.log(`✗ Failed: ${config.name}`, error.message);
             }
             
             loaded++;
@@ -419,13 +513,13 @@ class TansSanctuary {
             await this.sleep(100);
         }
         
-        // Add more creatures by cloning
+        // Add more creatures
         this.addMoreCreatures();
         
-        // Create "Tanmai" text on house
-        this.createTanmaiText();
+        // Create "Tan's Home" text
+        this.createHomeText();
         
-        // Create procedural postbox as fallback
+        // Fallback postbox
         if (!this.models.postbox) {
             this.createProceduralPostbox();
         }
@@ -441,14 +535,12 @@ class TansSanctuary {
                 (gltf) => {
                     const model = gltf.scene;
                     
-                    // Apply transforms
                     model.scale.setScalar(config.scale);
                     model.position.set(...config.position);
                     if (config.rotation) {
                         model.rotation.set(...config.rotation);
                     }
                     
-                    // Enable shadows
                     model.traverse((child) => {
                         if (child.isMesh) {
                             child.castShadow = true;
@@ -459,7 +551,7 @@ class TansSanctuary {
                     this.scene.add(model);
                     this.models[config.name] = model;
                     
-                    // Setup animations if the model has them (unless noAnimation flag is set)
+                    // Play animations unless disabled
                     if (gltf.animations && gltf.animations.length > 0 && !config.noAnimation) {
                         const mixer = new THREE.AnimationMixer(model);
                         gltf.animations.forEach((clip) => {
@@ -467,16 +559,16 @@ class TansSanctuary {
                             action.play();
                         });
                         this.mixers.push(mixer);
-                        console.log(`  → Playing ${gltf.animations.length} animations for ${config.name}`);
                     }
                     
-                    // Add to floating objects for movement
-                    if (config.float || config.orbit || config.spin) {
+                    // Add to floating/orbiting objects
+                    if (config.float || config.orbit || config.spin || config.swim) {
                         this.floatingObjects.push({
                             mesh: model,
                             config: config,
                             basePosition: new THREE.Vector3(...config.position),
-                            offset: Math.random() * Math.PI * 2
+                            offset: Math.random() * Math.PI * 2,
+                            swimOffset: Math.random() * Math.PI * 2
                         });
                     }
                     
@@ -484,9 +576,17 @@ class TansSanctuary {
                     if (config.interactive) {
                         this.interactables.push({
                             object: model,
-                            name: 'Love Letter 💌',
-                            description: 'Press E to read your letter',
-                            action: () => this.openLetter()
+                            type: config.interactType,
+                            name: config.interactType === 'letter' ? 'Love Letter 💌' : config.animalInfo?.name,
+                            description: config.interactType === 'letter' ? 'Press E to read' : 'Press E to learn more',
+                            animalInfo: config.animalInfo,
+                            action: () => {
+                                if (config.interactType === 'letter') {
+                                    this.openLetter();
+                                } else if (config.interactType === 'animal') {
+                                    this.showAnimalCard(config.animalInfo);
+                                }
+                            }
                         });
                     }
                     
@@ -499,133 +599,115 @@ class TansSanctuary {
     }
     
     addMoreCreatures() {
-        // Clone jellyray to add more
+        // Clone jellyray
         if (this.models.jellyray1) {
-            for (let i = 0; i < 3; i++) {
+            const positions = [
+                [10, 7, 5], [-5, 8, 8], [3, 5, -5]
+            ];
+            positions.forEach((pos, i) => {
                 const clone = this.models.jellyray1.clone();
-                clone.position.set(
-                    (Math.random() - 0.5) * 40,
-                    8 + Math.random() * 12,
-                    (Math.random() - 0.5) * 40
-                );
-                clone.scale.setScalar(0.4 + Math.random() * 0.4);
+                clone.position.set(...pos);
+                clone.scale.setScalar(0.3 + Math.random() * 0.2);
+                clone.rotation.y = Math.random() * Math.PI * 2;
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { float: true },
+                    config: { swim: true },
                     basePosition: clone.position.clone(),
-                    offset: Math.random() * Math.PI * 2
+                    offset: Math.random() * Math.PI * 2,
+                    swimOffset: Math.random() * Math.PI * 2
                 });
-            }
+            });
         }
         
         // Clone bladderfish
-        if (this.models.bladderfish1) {
-            for (let i = 0; i < 4; i++) {
-                const clone = this.models.bladderfish1.clone();
-                clone.position.set(
-                    (Math.random() - 0.5) * 35,
-                    4 + Math.random() * 10,
-                    (Math.random() - 0.5) * 35
-                );
-                clone.scale.setScalar(0.3 + Math.random() * 0.3);
+        if (this.models.bladderfish) {
+            const positions = [
+                [6, 3, 6], [-4, 5, 5], [0, 4, 8]
+            ];
+            positions.forEach((pos, i) => {
+                const clone = this.models.bladderfish.clone();
+                clone.position.set(...pos);
+                clone.scale.setScalar(0.25 + Math.random() * 0.15);
                 clone.rotation.y = Math.random() * Math.PI * 2;
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { float: true },
+                    config: { swim: true },
                     basePosition: clone.position.clone(),
-                    offset: Math.random() * Math.PI * 2
+                    offset: Math.random() * Math.PI * 2,
+                    swimOffset: Math.random() * Math.PI * 2
                 });
-            }
-        }
-        
-        // Clone whale sharks for more variety
-        if (this.models.whaleShark1) {
-            for (let i = 0; i < 2; i++) {
-                const clone = this.models.whaleShark1.clone();
-                clone.position.set(
-                    (Math.random() - 0.5) * 50,
-                    8 + Math.random() * 15,
-                    (Math.random() - 0.5) * 50
-                );
-                clone.scale.setScalar(0.5 + Math.random() * 0.4);
-                clone.rotation.y = Math.random() * Math.PI * 2;
-                this.scene.add(clone);
-                this.floatingObjects.push({
-                    mesh: clone,
-                    config: { float: true },
-                    basePosition: clone.position.clone(),
-                    offset: Math.random() * Math.PI * 2
-                });
-            }
+            });
         }
     }
     
-    createTanmaiText() {
-        // Create 3D text "Tanmai" using canvas texture
+    createHomeText() {
+        // Create bigger, more visible "Tan's Home" text
         const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 128;
+        canvas.width = 1024;
+        canvas.height = 256;
         const ctx = canvas.getContext('2d');
         
-        // Background (transparent)
+        // Clear
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Text styling
-        ctx.fillStyle = '#ff6b8b';
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.font = 'bold 72px "Cormorant Garamond", Georgia, serif';
+        // Glow effect
+        ctx.shadowColor = '#ff6b8b';
+        ctx.shadowBlur = 30;
+        
+        // Main text
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#ff6b8b';
+        ctx.lineWidth = 4;
+        ctx.font = 'bold 100px "Cormorant Garamond", Georgia, serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // Draw text with glow
-        ctx.shadowColor = '#ff6b8b';
-        ctx.shadowBlur = 20;
-        ctx.strokeText('Tanmai', canvas.width / 2, canvas.height / 2);
-        ctx.fillText('Tanmai', canvas.width / 2, canvas.height / 2);
+        // Draw text
+        ctx.strokeText("Tan's Home", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText("Tan's Home", canvas.width / 2, canvas.height / 2 - 20);
         
-        // Add heart
-        ctx.font = '48px serif';
-        ctx.fillText('💕', canvas.width / 2, canvas.height / 2 + 50);
+        // Subtitle with heart
+        ctx.font = '40px serif';
+        ctx.fillStyle = '#ff8ea8';
+        ctx.shadowBlur = 15;
+        ctx.fillText('💕 Made with love 💕', canvas.width / 2, canvas.height / 2 + 60);
         
-        // Create texture
         const texture = new THREE.CanvasTexture(canvas);
         texture.needsUpdate = true;
         
-        // Create plane with text
-        const geometry = new THREE.PlaneGeometry(4, 1);
+        const geometry = new THREE.PlaneGeometry(8, 2);
         const material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            depthWrite: false
         });
         
         const textMesh = new THREE.Mesh(geometry, material);
-        textMesh.position.set(0, 5.5, -3); // Above the house
+        textMesh.position.set(0, 7, -4);
         this.scene.add(textMesh);
-        this.tanmaiText = textMesh;
+        this.homeText = textMesh;
         
-        // Add glow behind text
-        const glowGeom = new THREE.PlaneGeometry(4.5, 1.5);
+        // Glow plane behind
+        const glowGeom = new THREE.PlaneGeometry(9, 2.5);
         const glowMat = new THREE.MeshBasicMaterial({
             color: 0xff6b8b,
             transparent: true,
-            opacity: 0.2,
+            opacity: 0.15,
             side: THREE.DoubleSide
         });
         const glow = new THREE.Mesh(glowGeom, glowMat);
         glow.position.copy(textMesh.position);
         glow.position.z -= 0.1;
         this.scene.add(glow);
-        this.tanmaiGlow = glow;
+        this.homeTextGlow = glow;
     }
     
     createProceduralPostbox() {
         const group = new THREE.Group();
         
-        // Main body
         const bodyGeom = new THREE.BoxGeometry(0.8, 1.2, 0.6);
         const bodyMat = new THREE.MeshStandardMaterial({
             color: 0xff3333,
@@ -634,39 +716,22 @@ class TansSanctuary {
         });
         const body = new THREE.Mesh(bodyGeom, bodyMat);
         body.position.y = 1.2;
-        body.castShadow = true;
         group.add(body);
         
-        // Top
-        const topGeom = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 32, 1, false, 0, Math.PI);
-        const top = new THREE.Mesh(topGeom, bodyMat);
-        top.rotation.x = Math.PI / 2;
-        top.rotation.z = Math.PI / 2;
-        top.position.set(0, 1.8, 0);
-        group.add(top);
-        
-        // Post
-        const postGeom = new THREE.CylinderGeometry(0.1, 0.1, 0.6, 16);
-        const postMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-        const post = new THREE.Mesh(postGeom, postMat);
-        post.position.y = 0.3;
-        group.add(post);
-        
-        group.position.set(6, 0, 2);
+        group.position.set(5, 0, 3);
         this.scene.add(group);
         this.models.postbox = group;
         
-        // Add to interactables
         this.interactables.push({
             object: group,
+            type: 'letter',
             name: 'Love Letter 💌',
-            description: 'Press E to read your letter',
+            description: 'Press E to read',
             action: () => this.openLetter()
         });
     }
     
     setupControls() {
-        // Keyboard
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
             
@@ -683,7 +748,6 @@ class TansSanctuary {
             this.keys[e.code] = false;
         });
         
-        // Mouse
         const canvas = document.getElementById('game-canvas');
         
         canvas.addEventListener('click', () => {
@@ -706,12 +770,10 @@ class TansSanctuary {
     }
     
     setupUI() {
-        // Enter button
         document.getElementById('btn-enter').addEventListener('click', () => {
             this.startGame();
         });
         
-        // Close letter
         document.getElementById('close-letter').addEventListener('click', () => {
             this.closeLetter();
         });
@@ -719,42 +781,47 @@ class TansSanctuary {
         document.querySelector('#letter-modal .modal-backdrop').addEventListener('click', () => {
             this.closeLetter();
         });
+        
+        // Animal card close
+        document.getElementById('close-animal-card')?.addEventListener('click', () => {
+            this.closeAnimalCard();
+        });
+        
+        document.querySelector('#animal-card-modal .modal-backdrop')?.addEventListener('click', () => {
+            this.closeAnimalCard();
+        });
     }
     
     setupAudio() {
-        // Auto-load music from sounds folder
-        this.audioContext = null;
-        this.audioElement = null;
+        this.audioElement = new Audio();
+        this.audioElement.loop = true;
+        this.audioElement.volume = 0.5;
         
-        // Try to load music file from sounds folder
-        // Supports: music.mp3, background.mp3, song.mp3, or any .mp3/.wav file
+        // Try many possible file names
         const musicFiles = [
             'sounds/music.mp3',
             'sounds/background.mp3',
             'sounds/song.mp3',
             'sounds/audio.mp3',
             'sounds/track.mp3',
+            'sounds/bgm.mp3',
+            'sounds/love.mp3',
+            'sounds/tanmai.mp3',
             'sounds/music.wav',
-            'sounds/background.wav'
+            'sounds/music.ogg',
+            'sounds/music.m4a',
+            'sound/music.mp3',
+            'audio/music.mp3',
+            'music.mp3'
         ];
         
-        // Create audio element
-        this.audioElement = new Audio();
-        this.audioElement.loop = true;
-        this.audioElement.volume = 0.5;
-        
-        // Try each file until one works
         this.tryLoadMusic(musicFiles, 0);
         
-        // Play/Pause button
         const playBtn = document.getElementById('music-play-btn');
         if (playBtn) {
-            playBtn.addEventListener('click', () => {
-                this.toggleMusic();
-            });
+            playBtn.addEventListener('click', () => this.toggleMusic());
         }
         
-        // Volume control
         const volumeSlider = document.getElementById('music-volume');
         if (volumeSlider) {
             volumeSlider.addEventListener('input', (e) => {
@@ -767,7 +834,7 @@ class TansSanctuary {
     
     tryLoadMusic(files, index) {
         if (index >= files.length) {
-            console.log('No music file found in sounds folder');
+            console.log('No music file found');
             const musicName = document.getElementById('music-name');
             if (musicName) musicName.textContent = 'Add music to sounds/ folder';
             return;
@@ -777,28 +844,23 @@ class TansSanctuary {
         testAudio.src = files[index];
         
         testAudio.oncanplaythrough = () => {
-            // Found a working file!
             this.audioElement.src = files[index];
             const fileName = files[index].split('/').pop();
             const musicName = document.getElementById('music-name');
-            if (musicName) musicName.textContent = fileName;
-            console.log('✓ Loaded music:', fileName);
-            
-            // Auto-play when game starts
+            if (musicName) musicName.textContent = '🎵 ' + fileName;
+            console.log('✓ Music loaded:', fileName);
             this.musicReady = true;
         };
         
         testAudio.onerror = () => {
-            // Try next file
             this.tryLoadMusic(files, index + 1);
         };
     }
     
     playMusic() {
         if (this.audioElement && this.audioElement.src) {
-            this.audioElement.play().catch(e => console.log('Music play blocked:', e));
+            this.audioElement.play().catch(e => console.log('Music blocked:', e));
             this.state.musicPlaying = true;
-            
             const playBtn = document.getElementById('music-play-btn');
             if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         }
@@ -808,7 +870,6 @@ class TansSanctuary {
         if (this.audioElement) {
             this.audioElement.pause();
             this.state.musicPlaying = false;
-            
             const playBtn = document.getElementById('music-play-btn');
             if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
@@ -829,7 +890,6 @@ class TansSanctuary {
         this.state.started = true;
         document.getElementById('game-canvas').requestPointerLock();
         
-        // Auto-play music if loaded
         if (this.musicReady) {
             this.playMusic();
         }
@@ -847,7 +907,6 @@ class TansSanctuary {
         
         if (!this.state.letterRead) {
             this.state.letterRead = true;
-            
             setTimeout(() => {
                 this.showFireworks();
                 this.showValentineMessage();
@@ -857,6 +916,21 @@ class TansSanctuary {
     
     closeLetter() {
         document.getElementById('letter-modal').classList.add('hidden');
+        if (this.state.started) {
+            document.getElementById('game-canvas').requestPointerLock();
+        }
+    }
+    
+    showAnimalCard(info) {
+        document.exitPointerLock();
+        document.getElementById('animal-card-modal').classList.remove('hidden');
+        document.getElementById('animal-name').textContent = info.name;
+        document.getElementById('animal-description').textContent = info.description;
+        document.getElementById('animal-fact').textContent = info.fact;
+    }
+    
+    closeAnimalCard() {
+        document.getElementById('animal-card-modal').classList.add('hidden');
         if (this.state.started) {
             document.getElementById('game-canvas').requestPointerLock();
         }
@@ -883,7 +957,6 @@ class TansSanctuary {
                 particle.style.boxShadow = `0 0 10px ${color}`;
                 particle.style.animationDelay = Math.random() * 0.1 + 's';
                 container.appendChild(particle);
-                
                 setTimeout(() => particle.remove(), 1500);
             }
         };
@@ -896,7 +969,6 @@ class TansSanctuary {
     showValentineMessage() {
         const message = document.getElementById('valentine-message');
         message.classList.remove('hidden');
-        
         setTimeout(() => {
             message.classList.add('hidden');
         }, 5000);
@@ -936,17 +1008,14 @@ class TansSanctuary {
             this.player.position.add(direction.multiplyScalar(moveSpeed));
         }
         
-        // Keep player on platform
-        const distFromCenter = Math.sqrt(
-            this.player.position.x ** 2 + this.player.position.z ** 2
-        );
-        if (distFromCenter > 18) {
+        // Keep on platform
+        const dist = Math.sqrt(this.player.position.x ** 2 + this.player.position.z ** 2);
+        if (dist > 22) {
             const angle = Math.atan2(this.player.position.z, this.player.position.x);
-            this.player.position.x = Math.cos(angle) * 18;
-            this.player.position.z = Math.sin(angle) * 18;
+            this.player.position.x = Math.cos(angle) * 22;
+            this.player.position.z = Math.sin(angle) * 22;
         }
         
-        // Update camera
         this.camera.position.copy(this.player.position);
         this.camera.rotation.order = 'YXZ';
         this.camera.rotation.y = this.player.yaw;
@@ -961,7 +1030,7 @@ class TansSanctuary {
         const crosshair = document.querySelector('.crosshair');
         
         let nearestTarget = null;
-        let nearestDist = 6;
+        let nearestDist = 8; // Larger range for animals
         
         for (const interactable of this.interactables) {
             const objPos = new THREE.Vector3();
@@ -975,7 +1044,7 @@ class TansSanctuary {
                 lookDir.applyQuaternion(this.camera.quaternion);
                 
                 const dot = toObj.dot(lookDir);
-                if (dot > 0.6) {
+                if (dot > 0.5) {
                     nearestDist = dist;
                     nearestTarget = interactable;
                 }
@@ -986,7 +1055,7 @@ class TansSanctuary {
         
         if (nearestTarget) {
             prompt.classList.remove('hidden');
-            text.textContent = nearestTarget.description;
+            text.textContent = nearestTarget.name + ' - ' + nearestTarget.description;
             crosshair.classList.add('active');
         } else {
             prompt.classList.add('hidden');
@@ -995,64 +1064,80 @@ class TansSanctuary {
     }
     
     updateAnimations(delta, time) {
-        // Update all animation mixers (plays GLB animations)
+        // Update GLB animations
         for (const mixer of this.mixers) {
             mixer.update(delta);
         }
         
-        // Floating/orbiting objects
+        // Floating/orbiting/swimming objects
         for (const obj of this.floatingObjects) {
             const t = time + obj.offset;
+            const st = time + (obj.swimOffset || 0);
             
             if (obj.config.orbit) {
-                // Get orbit parameters (with defaults for phoenix)
-                const radius = obj.config.orbitRadius || 25;
-                const speed = obj.config.orbitSpeed || 0.2;
-                const height = obj.config.orbitHeight || 12;
+                const radius = obj.config.orbitRadius || 15;
+                const speed = obj.config.orbitSpeed || 0.15;
+                const height = obj.config.orbitHeight || 8;
                 
-                // Orbit around the center
                 obj.mesh.position.x = Math.sin(t * speed) * radius;
-                obj.mesh.position.z = Math.cos(t * speed) * radius - 10;
-                obj.mesh.position.y = height + Math.sin(t * 0.5) * 3;
+                obj.mesh.position.z = Math.cos(t * speed) * radius - 5;
+                obj.mesh.position.y = height + Math.sin(t * 0.5) * 2;
                 obj.mesh.rotation.y = -t * speed + Math.PI / 2;
+            } else if (obj.config.swim) {
+                // Natural swimming motion
+                const swimX = Math.sin(st * 0.4) * 2;
+                const swimY = Math.sin(st * 0.6) * 0.8;
+                const swimZ = Math.cos(st * 0.3) * 1.5;
+                
+                obj.mesh.position.x = obj.basePosition.x + swimX;
+                obj.mesh.position.y = obj.basePosition.y + swimY;
+                obj.mesh.position.z = obj.basePosition.z + swimZ;
+                
+                // Natural rotation - look where swimming
+                obj.mesh.rotation.y += Math.sin(st * 0.5) * 0.01;
+                obj.mesh.rotation.z = Math.sin(st * 0.8) * 0.1;
             } else if (obj.config.float) {
-                // Gentle floating
-                obj.mesh.position.y = obj.basePosition.y + Math.sin(t * 0.5) * 0.5;
-                obj.mesh.position.x = obj.basePosition.x + Math.sin(t * 0.3) * 0.3;
-                obj.mesh.rotation.y += delta * 0.2;
+                obj.mesh.position.y = obj.basePosition.y + Math.sin(t * 0.5) * 0.3;
+                obj.mesh.rotation.z = Math.sin(t * 0.3) * 0.05;
             } else if (obj.config.spin) {
-                // Planet slow rotation
                 obj.mesh.rotation.y += delta * 0.05;
             }
         }
         
-        // Stars twinkle
+        // Stars rotate slowly
         if (this.stars) {
-            this.stars.rotation.y += delta * 0.01;
+            this.stars.rotation.y += delta * 0.005;
         }
         
-        // Floating particles
+        // Particles float
         if (this.floatingParticles) {
             const positions = this.floatingParticles.geometry.attributes.position.array;
             for (let i = 1; i < positions.length; i += 3) {
-                positions[i] += Math.sin(time + i) * 0.002;
+                positions[i] += Math.sin(time + i) * 0.003;
             }
             this.floatingParticles.geometry.attributes.position.needsUpdate = true;
-            this.floatingParticles.rotation.y += delta * 0.02;
+            this.floatingParticles.rotation.y += delta * 0.01;
         }
         
-        // Glow ring pulse
+        // Platform glow pulse
         if (this.glowRing) {
             this.glowRing.material.opacity = 0.4 + Math.sin(time * 2) * 0.2;
         }
         
-        // Tanmai text glow
-        if (this.tanmaiText) {
-            this.tanmaiText.lookAt(this.camera.position);
+        // Planets rotate
+        if (this.planets) {
+            if (this.planets.saturn) this.planets.saturn.rotation.y += delta * 0.02;
+            if (this.planets.saturnRing) this.planets.saturnRing.rotation.z += delta * 0.01;
+            if (this.planets.jupiter) this.planets.jupiter.rotation.y += delta * 0.015;
         }
-        if (this.tanmaiGlow) {
-            this.tanmaiGlow.lookAt(this.camera.position);
-            this.tanmaiGlow.material.opacity = 0.15 + Math.sin(time * 3) * 0.1;
+        
+        // Text always faces player
+        if (this.homeText) {
+            this.homeText.lookAt(this.camera.position);
+        }
+        if (this.homeTextGlow) {
+            this.homeTextGlow.lookAt(this.camera.position);
+            this.homeTextGlow.material.opacity = 0.12 + Math.sin(time * 3) * 0.08;
         }
     }
     
@@ -1076,5 +1161,5 @@ class TansSanctuary {
 
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
-    window.game = new TansSanctuary();
+    window.game = new TansHome();
 });

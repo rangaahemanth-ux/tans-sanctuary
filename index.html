@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tan's Sanctuary ✦ A Valentine Space</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
+    <title>Tan's Home 💕</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -20,8 +20,8 @@
                 <div class="ring r2"></div>
                 <div class="ring r3"></div>
             </div>
-            <div class="loader-icon">💖</div>
-            <h1 class="loader-title">Tan's Sanctuary</h1>
+            <div class="loader-icon">🏠</div>
+            <h1 class="loader-title">Tan's Home</h1>
             <p class="loader-subtitle">Loading your special place...</p>
             <div class="loader-progress">
                 <div class="loader-bar" id="load-bar"></div>
@@ -34,10 +34,10 @@
     <div id="main-menu" class="overlay hidden">
         <div class="menu-content">
             <div class="menu-sparkles">
-                <span>✨</span><span>💕</span><span>✦</span><span>💖</span><span>✨</span>
+                <span>✨</span><span>💕</span><span>🏠</span><span>💖</span><span>✨</span>
             </div>
-            <h1 class="menu-title">Tan's<br><span>Sanctuary</span></h1>
-            <p class="menu-subtitle">A space made just for you</p>
+            <h1 class="menu-title">Tan's<br><span>Home</span></h1>
+            <p class="menu-subtitle">A place made just for you</p>
             <button id="btn-enter" class="btn-enter">
                 <span>Enter</span>
                 <div class="btn-glow"></div>
@@ -61,8 +61,6 @@
             <kbd>E</kbd>
             <span id="interact-text">Interact</span>
         </div>
-        
-        <!-- Instructions hint -->
         <div class="controls-hint">
             <span><kbd>WASD</kbd> Move</span>
             <span><kbd>Mouse</kbd> Look</span>
@@ -102,11 +100,11 @@
                 <div class="letter-body" id="letter-body">
                     <p>My dearest Tanmai,</p>
                     
-                    <p>This virtual sanctuary was created just for you. Every star in this infinite sky was placed here with thoughts of you dancing through my mind, every floating creature moves with the rhythm of my heart beating for you.</p>
+                    <p>This home was built just for you. Every star in this infinite sky was placed here with thoughts of you dancing through my mind, every floating creature moves with the rhythm of my heart beating for you.</p>
                     
                     <p>You are my universe, my everything, my reason to smile every single day. In this space, I hope you feel the warmth of my love wrapping around you like the softest blanket on a cold winter night.</p>
                     
-                    <p>When you're here, wandering among the stars and watching the phoenix soar, know that my love surrounds you completely. Even across any distance, my heart is always with you. This is our special place — a sanctuary where our love lives forever.</p>
+                    <p>When you're here, wandering among the stars and watching the phoenix soar, know that my love surrounds you completely. Even across any distance, my heart is always with you. This is our special place — a home where our love lives forever.</p>
                     
                     <p>Every moment with you is a gift I treasure. Your smile lights up my world brighter than all these stars combined. Your laugh is my favorite melody. Your love is my greatest blessing.</p>
                     
@@ -119,6 +117,29 @@
                         With all my love 💕<br>
                         <span class="signature-heart">❤️</span>
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animal Card Modal -->
+    <div id="animal-card-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content animal-card-content">
+            <button class="modal-close" id="close-animal-card">&times;</button>
+            <div class="animal-card">
+                <div class="animal-card-header">
+                    <h2 id="animal-name">🐋 Creature Name</h2>
+                </div>
+                <div class="animal-card-body">
+                    <p id="animal-description" class="animal-description">Description here...</p>
+                    <div class="animal-fact">
+                        <span class="fact-label">✨ Fun Fact:</span>
+                        <p id="animal-fact">Fun fact here...</p>
+                    </div>
+                </div>
+                <div class="animal-card-footer">
+                    <span>💕 This creature guards Tan's Home 💕</span>
                 </div>
             </div>
         </div>
