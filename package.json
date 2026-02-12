@@ -1,0 +1,8 @@
+{
+  "name": "tans-sanctuary",
+  "version": "1.0.0",
+  "description": "A romantic 3D sanctuary built for Tanmai",
+  "scripts": {
+    "start": "npx live-server --port=8080"
+  }
+}

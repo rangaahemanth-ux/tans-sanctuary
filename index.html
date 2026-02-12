@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tan's Sanctuary ✦ A Valentine Space</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="loader-rings">
+                <div class="ring r1"></div>
+                <div class="ring r2"></div>
+                <div class="ring r3"></div>
+            </div>
+            <div class="loader-icon">💖</div>
+            <h1 class="loader-title">Tan's Sanctuary</h1>
+            <p class="loader-subtitle">Loading your special place...</p>
+            <div class="loader-progress">
+                <div class="loader-bar" id="load-bar"></div>
+            </div>
+            <p class="loader-status" id="load-status">Initializing...</p>
+        </div>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="overlay hidden">
+        <div class="menu-content">
+            <div class="menu-sparkles">
+                <span>✨</span><span>💕</span><span>✦</span><span>💖</span><span>✨</span>
+            </div>
+            <h1 class="menu-title">Tan's<br><span>Sanctuary</span></h1>
+            <p class="menu-subtitle">A space made just for you</p>
+            <button id="btn-enter" class="btn-enter">
+                <span>Enter</span>
+                <div class="btn-glow"></div>
+            </button>
+            <div class="menu-controls">
+                <div class="control"><kbd>WASD</kbd> Move</div>
+                <div class="control"><kbd>Mouse</kbd> Look</div>
+                <div class="control"><kbd>E</kbd> Interact</div>
+            </div>
+            <p class="menu-footer">Made with 💕 for Tanmai</p>
+        </div>
+    </div>
+
+    <!-- Game HUD -->
+    <div id="hud" class="hidden">
+        <div class="crosshair">
+            <div class="crosshair-dot"></div>
+            <div class="crosshair-ring"></div>
+        </div>
+        <div id="interact-prompt" class="interact-prompt hidden">
+            <kbd>E</kbd>
+            <span id="interact-text">Interact</span>
+        </div>
+    </div>
+
+    <!-- Letter Modal -->
+    <div id="letter-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content letter-content">
+            <button class="modal-close" id="close-letter">&times;</button>
+            <div class="letter-paper">
+                <div class="letter-header">
+                    <span class="letter-icon">💌</span>
+                    <h2 id="letter-title">For You, My Love</h2>
+                    <p class="letter-date" id="letter-date"></p>
+                </div>
+                <div class="letter-body" id="letter-body">
+                    <p>My dearest Tanmai,</p>
+                    <p>This virtual sanctuary was created just for you. Every star in this sky was placed here thinking of you, every floating creature moves with the rhythm of my heart.</p>
+                    <p>You are my universe, my everything. In this space, I hope you feel how much you mean to me.</p>
+                    <p>When you're here, know that my love surrounds you, even across the distance. This is our special place.</p>
+                    <p>Forever yours,<br>❤️</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div id="fireworks-container"></div>
+
+    <!-- Valentine Message -->
+    <div id="valentine-message" class="hidden">
+        <h1>Happy Valentine's Day</h1>
+        <p>I love you, Tanmai 💕</p>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
