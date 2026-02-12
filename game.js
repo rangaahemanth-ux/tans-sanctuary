@@ -288,7 +288,7 @@ class TansSanctuary {
         const loadBar = document.getElementById('load-bar');
         const loadStatus = document.getElementById('load-status');
         
-        const modelPath = 'assets/models/';
+        const modelPath = ''; // Models are in root directory
         
         // Model configurations - ALL your models
         const modelConfigs = [
@@ -669,42 +669,29 @@ class TansSanctuary {
     }
     
     setupAudio() {
-        // Create audio drop zone
-        const dropZone = document.getElementById('music-drop-zone');
-        const fileInput = document.getElementById('music-file-input');
+        // Auto-load music from sounds folder
+        this.audioContext = null;
+        this.audioElement = null;
         
-        if (dropZone) {
-            // Drag and drop
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.classList.add('drag-over');
-            });
-            
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('drag-over');
-            });
-            
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('drag-over');
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('audio/')) {
-                    this.loadAudioFile(file);
-                }
-            });
-            
-            // Click to select
-            dropZone.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            fileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    this.loadAudioFile(file);
-                }
-            });
-        }
+        // Try to load music file from sounds folder
+        // Supports: music.mp3, background.mp3, song.mp3, or any .mp3/.wav file
+        const musicFiles = [
+            'sounds/music.mp3',
+            'sounds/background.mp3',
+            'sounds/song.mp3',
+            'sounds/audio.mp3',
+            'sounds/track.mp3',
+            'sounds/music.wav',
+            'sounds/background.wav'
+        ];
+        
+        // Create audio element
+        this.audioElement = new Audio();
+        this.audioElement.loop = true;
+        this.audioElement.volume = 0.5;
+        
+        // Try each file until one works
+        this.tryLoadMusic(musicFiles, 0);
         
         // Play/Pause button
         const playBtn = document.getElementById('music-play-btn');
@@ -718,65 +705,55 @@ class TansSanctuary {
         const volumeSlider = document.getElementById('music-volume');
         if (volumeSlider) {
             volumeSlider.addEventListener('input', (e) => {
-                if (this.gainNode) {
-                    this.gainNode.gain.value = e.target.value / 100;
+                if (this.audioElement) {
+                    this.audioElement.volume = e.target.value / 100;
                 }
             });
         }
     }
     
-    loadAudioFile(file) {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                if (!this.audioContext) {
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    this.gainNode = this.audioContext.createGain();
-                    this.gainNode.connect(this.audioContext.destination);
-                    this.gainNode.gain.value = 0.5;
-                }
-                
-                // Stop current audio
-                if (this.audioSource) {
-                    this.audioSource.stop();
-                }
-                
-                // Decode and play
-                this.audioBuffer = await this.audioContext.decodeAudioData(e.target.result);
-                
-                // Update UI
-                const musicName = document.getElementById('music-name');
-                const dropZone = document.getElementById('music-drop-zone');
-                if (musicName) musicName.textContent = file.name;
-                if (dropZone) dropZone.classList.add('has-music');
-                
-                // Auto play
-                this.playMusic();
-                
-            } catch (error) {
-                console.error('Error loading audio:', error);
-            }
+    tryLoadMusic(files, index) {
+        if (index >= files.length) {
+            console.log('No music file found in sounds folder');
+            const musicName = document.getElementById('music-name');
+            if (musicName) musicName.textContent = 'Add music to sounds/ folder';
+            return;
+        }
+        
+        const testAudio = new Audio();
+        testAudio.src = files[index];
+        
+        testAudio.oncanplaythrough = () => {
+            // Found a working file!
+            this.audioElement.src = files[index];
+            const fileName = files[index].split('/').pop();
+            const musicName = document.getElementById('music-name');
+            if (musicName) musicName.textContent = fileName;
+            console.log('✓ Loaded music:', fileName);
+            
+            // Auto-play when game starts
+            this.musicReady = true;
         };
-        reader.readAsArrayBuffer(file);
+        
+        testAudio.onerror = () => {
+            // Try next file
+            this.tryLoadMusic(files, index + 1);
+        };
     }
     
     playMusic() {
-        if (!this.audioBuffer || !this.audioContext) return;
-        
-        this.audioSource = this.audioContext.createBufferSource();
-        this.audioSource.buffer = this.audioBuffer;
-        this.audioSource.loop = true;
-        this.audioSource.connect(this.gainNode);
-        this.audioSource.start();
-        this.state.musicPlaying = true;
-        
-        const playBtn = document.getElementById('music-play-btn');
-        if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        if (this.audioElement && this.audioElement.src) {
+            this.audioElement.play().catch(e => console.log('Music play blocked:', e));
+            this.state.musicPlaying = true;
+            
+            const playBtn = document.getElementById('music-play-btn');
+            if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
     }
     
     pauseMusic() {
-        if (this.audioSource) {
-            this.audioSource.stop();
+        if (this.audioElement) {
+            this.audioElement.pause();
             this.state.musicPlaying = false;
             
             const playBtn = document.getElementById('music-play-btn');
@@ -787,7 +764,7 @@ class TansSanctuary {
     toggleMusic() {
         if (this.state.musicPlaying) {
             this.pauseMusic();
-        } else if (this.audioBuffer) {
+        } else {
             this.playMusic();
         }
     }
@@ -798,6 +775,11 @@ class TansSanctuary {
         document.getElementById('music-player').classList.remove('hidden');
         this.state.started = true;
         document.getElementById('game-canvas').requestPointerLock();
+        
+        // Auto-play music if loaded
+        if (this.musicReady) {
+            this.playMusic();
+        }
     }
     
     openLetter() {
