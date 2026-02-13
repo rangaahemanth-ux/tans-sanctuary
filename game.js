@@ -230,7 +230,7 @@ class TansHome {
                 file: 'mythic_whale_-_stylized_animated_model.glb',
                 name: 'whale',
                 scale: 40.0,
-                position: [-30, 18, 15],
+                position: [-60, 88, 15],
                 animate: true,
                 whaleSwim: true,
                 interactive: true,
