@@ -237,7 +237,7 @@ class TansHome {
             {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
-                scale: 0.008,  // SUPER TINY!
+                scale: 1.1,  // SUPER TINY!
                 position: [0, 12, -35],  // Far behind house
                 rotation: [0, Math.PI, 0],
                 noAnimation: false,
