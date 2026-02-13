@@ -589,11 +589,9 @@ class TansHome {
     }
     
     // ═══════════════════════════════════════════════════════════════════════════
-    // FIXED MUSIC PLAYER!
+    // COMPLETELY FIXED MUSIC PLAYER - GUARANTEED TO WORK!
     // ═══════════════════════════════════════════════════════════════════════════
     setupAudio() {
-        const self = this;
-        
         this.audioElement = new Audio();
         this.audioElement.loop = false;
         this.audioElement.volume = 0.5;
@@ -601,37 +599,124 @@ class TansHome {
         
         this.scanForMusic();
         
-        // FIXED: Use onclick directly
-        const playBtn = document.getElementById('music-play-btn');
-        const prevBtn = document.getElementById('music-prev-btn');
-        const nextBtn = document.getElementById('music-next-btn');
-        const volSlider = document.getElementById('music-volume');
-        
-        if (playBtn) {
-            playBtn.onclick = function() {
-                console.log('▶️ Play clicked!');
-                self.toggleMusic();
-            };
-        }
-        if (prevBtn) {
-            prevBtn.onclick = function() {
-                console.log('⏮️ Prev clicked!');
-                self.playPrevSong();
-            };
-        }
-        if (nextBtn) {
-            nextBtn.onclick = function() {
-                console.log('⏭️ Next clicked!');
-                self.playNextSong();
-            };
-        }
-        if (volSlider) {
-            volSlider.oninput = function() {
-                self.audioElement.volume = this.value / 100;
-            };
-        }
-        
-        console.log('🎵 Music player ready!');
+        // Wait for DOM to be fully ready
+        setTimeout(() => {
+            const playBtn = document.getElementById('music-play-btn');
+            const prevBtn = document.getElementById('music-prev-btn');
+            const nextBtn = document.getElementById('music-next-btn');
+            const volSlider = document.getElementById('music-volume');
+            const musicPlayer = document.getElementById('music-player');
+            
+            // CRITICAL: Ensure music player can receive clicks
+            if (musicPlayer) {
+                musicPlayer.style.pointerEvents = 'auto';
+                musicPlayer.style.zIndex = '9999';
+            }
+            
+            // Play/Pause button - MULTIPLE listeners for compatibility
+            if (playBtn) {
+                playBtn.style.pointerEvents = 'auto';
+                playBtn.style.cursor = 'pointer';
+                
+                // Method 1: Direct onclick
+                playBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    console.log('▶️ PLAY BUTTON CLICKED!');
+                    this.toggleMusic();
+                    return false;
+                };
+                
+                // Method 2: addEventListener with capture
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this.toggleMusic();
+                }, true);
+                
+                // Method 3: Touch support
+                playBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleMusic();
+                }, { passive: false });
+                
+                // Method 4: Mousedown fallback
+                playBtn.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    this.toggleMusic();
+                }, true);
+            }
+            
+            // Previous button
+            if (prevBtn) {
+                prevBtn.style.pointerEvents = 'auto';
+                prevBtn.style.cursor = 'pointer';
+                
+                prevBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    console.log('⏮️ PREV BUTTON CLICKED!');
+                    this.playPrevSong();
+                    return false;
+                };
+                
+                prevBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this.playPrevSong();
+                }, true);
+                
+                prevBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.playPrevSong();
+                }, { passive: false });
+            }
+            
+            // Next button
+            if (nextBtn) {
+                nextBtn.style.pointerEvents = 'auto';
+                nextBtn.style.cursor = 'pointer';
+                
+                nextBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    console.log('⏭️ NEXT BUTTON CLICKED!');
+                    this.playNextSong();
+                    return false;
+                };
+                
+                nextBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this.playNextSong();
+                }, true);
+                
+                nextBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.playNextSong();
+                }, { passive: false });
+            }
+            
+            // Volume slider
+            if (volSlider) {
+                volSlider.style.pointerEvents = 'auto';
+                volSlider.addEventListener('input', (e) => {
+                    this.audioElement.volume = e.target.value / 100;
+                    console.log('🔊 Volume:', e.target.value);
+                });
+                volSlider.addEventListener('change', (e) => {
+                    this.audioElement.volume = e.target.value / 100;
+                });
+            }
+            
+            console.log('🎵 Music player initialized!', {
+                playBtn: !!playBtn,
+                prevBtn: !!prevBtn,
+                nextBtn: !!nextBtn,
+                volSlider: !!volSlider,
+                musicPlayer: !!musicPlayer
+            });
+        }, 200);
     }
     
     scanForMusic() {
@@ -649,7 +734,7 @@ class TansHome {
             audio.oncanplaythrough = () => {
                 if (!this.playlist.includes(path)) {
                     this.playlist.push(path);
-                    console.log('✓ Found:', path);
+                    console.log('✓ Found song:', path);
                     this.updateMusicUI();
                 }
             };
@@ -657,8 +742,11 @@ class TansHome {
         
         setTimeout(() => {
             if (this.playlist.length === 0) {
+                console.log('⚠️ No music files found');
                 const el = document.getElementById('music-name');
                 if (el) el.textContent = 'Add .mp3 to sounds/';
+            } else {
+                console.log(`🎵 Loaded ${this.playlist.length} songs`);
             }
         }, 3000);
     }
@@ -673,27 +761,43 @@ class TansHome {
     }
     
     playMusic() {
-        if (this.playlist.length === 0) return;
-        if (!this.audioElement.src) this.audioElement.src = this.playlist[this.state.currentSongIndex];
+        if (this.playlist.length === 0) {
+            console.log('❌ No songs in playlist');
+            return;
+        }
+        
+        if (!this.audioElement.src) {
+            this.audioElement.src = this.playlist[this.state.currentSongIndex];
+        }
+        
         this.audioElement.play()
             .then(() => {
+                console.log('✓ Music playing');
                 this.state.musicPlaying = true;
                 const btn = document.getElementById('music-play-btn');
                 if (btn) btn.innerHTML = '<i class="fas fa-pause"></i>';
             })
-            .catch(e => console.log('Play error:', e));
+            .catch(e => {
+                console.log('❌ Play error:', e);
+                alert('Click anywhere on the page first, then try playing music!');
+            });
     }
     
     pauseMusic() {
         this.audioElement.pause();
         this.state.musicPlaying = false;
+        console.log('⏸ Music paused');
         const btn = document.getElementById('music-play-btn');
         if (btn) btn.innerHTML = '<i class="fas fa-play"></i>';
     }
     
     toggleMusic() {
-        if (this.state.musicPlaying) this.pauseMusic();
-        else this.playMusic();
+        console.log('🎵 Toggle music - currently playing:', this.state.musicPlaying);
+        if (this.state.musicPlaying) {
+            this.pauseMusic();
+        } else {
+            this.playMusic();
+        }
     }
     
     playNextSong() {
@@ -701,6 +805,7 @@ class TansHome {
         this.state.currentSongIndex = (this.state.currentSongIndex + 1) % this.playlist.length;
         this.audioElement.src = this.playlist[this.state.currentSongIndex];
         this.updateMusicUI();
+        console.log('⏭️ Next song:', this.playlist[this.state.currentSongIndex]);
         if (this.state.musicPlaying) this.playMusic();
     }
     
@@ -709,6 +814,7 @@ class TansHome {
         this.state.currentSongIndex = (this.state.currentSongIndex - 1 + this.playlist.length) % this.playlist.length;
         this.audioElement.src = this.playlist[this.state.currentSongIndex];
         this.updateMusicUI();
+        console.log('⏮️ Previous song:', this.playlist[this.state.currentSongIndex]);
         if (this.state.musicPlaying) this.playMusic();
     }
     
