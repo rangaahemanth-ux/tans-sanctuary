@@ -216,7 +216,7 @@ class TansHome {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
                 scale: 0.08,
-                position: [10, 90, 10],  // START VERY HIGH!
+                position: [20, 90, 10],  // START VERY HIGH!
                 animate: true,
                 phoenixFly: true,  // Special free flying!
                 addGlow: true,
@@ -229,7 +229,7 @@ class TansHome {
             {
                 file: 'mythic_whale_-_stylized_animated_model.glb',
                 name: 'whale',
-                scale: 100.0,
+                scale: 40.0,
                 position: [-30, 18, 15],
                 animate: true,
                 whaleSwim: true,
