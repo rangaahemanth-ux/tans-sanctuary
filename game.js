@@ -195,7 +195,7 @@ class TansHome {
                 position: [0, 0, -5],
                 noAnimation: true,
                 interactive: true,
-                info: { name: '🏠 Tan\'s Home', description: 'This magical house was built just for you, Tanmai.', fact: 'Every room is filled with memories of us!' }
+                info: { name: '🏠 Tan\'s Home', description: 'This home is just yours!' }
             },
             // POSTBOX
             {
@@ -247,7 +247,7 @@ class TansHome {
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { name: '🎐 Cosmic Jellyray', description: 'tell me about you tan. he said you are so mythical like me .' }
+                info: { name: '🎐 Cosmic Jellyray', description: 'tell me about you tan he said you are so mythical like me'}
             // JELLYRAY 2
             {
                 file: 'jellyray (1).glb',
