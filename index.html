@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <!-- Main Menu -->
+    <!-- Main Menu with Music Player -->
     <div id="main-menu" class="overlay hidden">
         <div class="menu-content">
             <div class="menu-sparkles">
@@ -38,8 +38,27 @@
             </div>
             <h1 class="menu-title">Tan's<br><span>Home</span></h1>
             <p class="menu-subtitle">A place made just for you</p>
+            
+            <!-- Music Player in Menu -->
+            <div class="menu-music-player">
+                <div class="menu-music-header">
+                    <i class="fas fa-music"></i> Background Music
+                </div>
+                <div class="menu-music-controls">
+                    <button id="music-prev-btn" class="music-ctrl-btn"><i class="fas fa-backward"></i></button>
+                    <button id="music-play-btn" class="music-play-btn"><i class="fas fa-play"></i></button>
+                    <button id="music-next-btn" class="music-ctrl-btn"><i class="fas fa-forward"></i></button>
+                </div>
+                <div id="music-name" class="music-name">🎵 Loading music...</div>
+                <div class="music-volume-row">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="music-volume" class="music-volume" min="0" max="100" value="50">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+            </div>
+            
             <button id="btn-enter" class="btn-enter">
-                <span>Enter</span>
+                <span>Enter Home</span>
                 <div class="btn-glow"></div>
             </button>
             <div class="menu-controls">
@@ -68,24 +87,6 @@
         </div>
     </div>
 
-    <!-- Music Player -->
-    <div id="music-player" class="music-player hidden">
-        <div class="music-header">
-            <i class="fas fa-music"></i>
-            <span>Background Music</span>
-        </div>
-        <div class="music-controls">
-            <span id="music-name" class="music-name">Loading music...</span>
-            <div class="music-buttons">
-                <button id="music-play-btn" class="music-btn">
-                    <i class="fas fa-play"></i>
-                </button>
-                <input type="range" id="music-volume" class="music-volume" min="0" max="100" value="50">
-                <i class="fas fa-volume-up volume-icon"></i>
-            </div>
-        </div>
-    </div>
-
     <!-- Letter Modal -->
     <div id="letter-modal" class="modal hidden">
         <div class="modal-backdrop"></div>
@@ -94,26 +95,24 @@
             <div class="letter-paper">
                 <div class="letter-header">
                     <span class="letter-icon">💌</span>
-                    <h2 id="letter-title">For You, My Love</h2>
+                    <h2>For You, My Love</h2>
                     <p class="letter-date" id="letter-date"></p>
                 </div>
-                <div class="letter-body" id="letter-body">
+                <div class="letter-body">
                     <p>My dearest Tanmai,</p>
                     
-                    <p>This home was built just for you. Every star in this infinite sky was placed here with thoughts of you dancing through my mind, every floating creature moves with the rhythm of my heart beating for you.</p>
+                    <p>This home was built just for you. Every star in this infinite sky was placed here with thoughts of you, every floating creature moves with the rhythm of my heart beating for you.</p>
                     
-                    <p>You are my universe, my everything, my reason to smile every single day. In this space, I hope you feel the warmth of my love wrapping around you like the softest blanket on a cold winter night.</p>
+                    <p>You are my universe, my everything, my reason to smile. In this space, I hope you feel the warmth of my love wrapping around you.</p>
                     
-                    <p>When you're here, wandering among the stars and watching the phoenix soar, know that my love surrounds you completely. Even across any distance, my heart is always with you. This is our special place — a home where our love lives forever.</p>
+                    <p>When you're here, wandering among the stars and watching the creatures float by, know that my love surrounds you completely. This is our special place — a home where our love lives forever.</p>
                     
-                    <p>Every moment with you is a gift I treasure. Your smile lights up my world brighter than all these stars combined. Your laugh is my favorite melody. Your love is my greatest blessing.</p>
+                    <p>Every moment with you is a gift. Your smile lights up my world brighter than all these stars. Your laugh is my favorite melody. Your love is my greatest blessing.</p>
                     
-                    <p>I created this world for you because you deserve magic. You deserve wonder. You deserve to know just how deeply, completely, and endlessly you are loved.</p>
-                    
-                    <p>Thank you for being you. Thank you for choosing me. Thank you for every moment we share together.</p>
+                    <p>I created this world for you because you deserve magic. You deserve wonder. You deserve to know how deeply you are loved.</p>
                     
                     <p class="letter-signature">
-                        Forever and always yours,<br>
+                        Forever yours,<br>
                         With all my love 💕<br>
                         <span class="signature-heart">❤️</span>
                     </p>
@@ -122,30 +121,30 @@
         </div>
     </div>
 
-    <!-- Animal Card Modal -->
-    <div id="animal-card-modal" class="modal hidden">
+    <!-- Info Card Modal (for house, planets, animals) -->
+    <div id="info-card-modal" class="modal hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal-content animal-card-content">
-            <button class="modal-close" id="close-animal-card">&times;</button>
-            <div class="animal-card">
-                <div class="animal-card-header">
-                    <h2 id="animal-name">🐋 Creature Name</h2>
+        <div class="modal-content info-card-content">
+            <button class="modal-close" id="close-info-card">&times;</button>
+            <div class="info-card">
+                <div class="info-card-header">
+                    <h2 id="info-name">✨ Name</h2>
                 </div>
-                <div class="animal-card-body">
-                    <p id="animal-description" class="animal-description">Description here...</p>
-                    <div class="animal-fact">
+                <div class="info-card-body">
+                    <p id="info-description" class="info-description">Description...</p>
+                    <div class="info-fact-box">
                         <span class="fact-label">✨ Fun Fact:</span>
-                        <p id="animal-fact">Fun fact here...</p>
+                        <p id="info-fact">Fun fact...</p>
                     </div>
                 </div>
-                <div class="animal-card-footer">
-                    <span>💕 This creature guards Tan's Home 💕</span>
+                <div class="info-card-footer">
+                    <span>💕 Part of Tan's magical home 💕</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Fireworks Container -->
+    <!-- Fireworks -->
     <div id="fireworks-container"></div>
 
     <!-- Valentine Message -->
@@ -154,10 +153,8 @@
         <p>I love you, Tanmai 💕</p>
     </div>
 
-    <!-- Canvas -->
     <canvas id="game-canvas"></canvas>
 
-    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="game.js"></script>
