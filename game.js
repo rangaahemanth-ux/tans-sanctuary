@@ -247,7 +247,7 @@ class TansHome {
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { name: '🎐 Cosmic Jellyray', description: 'Graceful creatures leaving stardust trails.', fact: 'They are drawn to happiness!' }
+                info: { name: '🎐 Cosmic Jellyray', description: 'if i were to kiss u and go to hell, i would do that that i brag to devils!that i experience heaven with out entering it . its a line by shakespeare and it makes so much sense for me now' }
             },
             // JELLYRAY 2
             {
@@ -258,7 +258,7 @@ class TansHome {
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { name: '✨ Starlight Jellyray', description: 'Carries the glow of distant galaxies.', fact: 'Holds memories of the cosmos!' }
+                info: { name: '✨ Starlight Jellyray', description: 'you are the best unplanned thing that happened to me !' }
             },
             // BLADDERFISH
             {
@@ -269,7 +269,7 @@ class TansHome {
                 animate: true,
                 fishSwim: true,
                 interactive: true,
-                info: { name: '🐡 Space Bladderfish', description: 'A friendly fish bringing joy.', fact: 'Lives here because of all the love!' }
+                info: { name: '🐡 Space Bladderfish', description: 'niku nenu vunanu.', fact: 'vuntanu!' }
             },
             // SALSA DANCER
             {
@@ -281,7 +281,7 @@ class TansHome {
                 animate: true,
                 noMovement: true,
                 interactive: true,
-                info: { name: '💃 Dancing Spirit', description: 'Dances eternally to celebrate love.', fact: 'Dances to your heartbeat!' }
+                info: { name: '💃 Dancing Spirit', description: 'you make me brave enough toadmit that i wanna be happy.', fact: 'and i wanna be happy with you!' }
             },
             // STYLIZED PLANET
             {
