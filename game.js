@@ -50,6 +50,12 @@ class TansHome {
         this.setupControls();
         this.setupUI();
         this.setupAudio();
+        
+        // ═══════════════════════════════════════════════════════════════
+        // ONLY SHOOTING STARS!
+        // ═══════════════════════════════════════════════════════════════
+        this.startShootingStars();
+        
         this.animate();
     }
     
@@ -179,6 +185,50 @@ class TansHome {
         this.scene.add(this.particles);
     }
     
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SHOOTING STARS! 🌠
+    // ═══════════════════════════════════════════════════════════════════════════
+    startShootingStars() {
+        setInterval(() => {
+            if (!this.state.started) return;
+            
+            const start = new THREE.Vector3(
+                (Math.random() - 0.5) * 200,
+                40 + Math.random() * 50,
+                (Math.random() - 0.5) * 200
+            );
+            
+            const end = start.clone().add(new THREE.Vector3(
+                (Math.random() - 0.5) * 100,
+                -80,
+                (Math.random() - 0.5) * 100
+            ));
+            
+            const points = [start, end];
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 1
+            });
+            
+            const star = new THREE.Line(geometry, material);
+            this.scene.add(star);
+            
+            let opacity = 1;
+            const fadeOut = setInterval(() => {
+                opacity -= 0.05;
+                material.opacity = opacity;
+                if (opacity <= 0) {
+                    this.scene.remove(star);
+                    geometry.dispose();
+                    material.dispose();
+                    clearInterval(fadeOut);
+                }
+            }, 50);
+        }, 3000 + Math.random() * 5000);
+    }
+    
     async loadModels() {
         const loadBar = document.getElementById('load-bar');
         const loadStatus = document.getElementById('load-status');
@@ -191,17 +241,17 @@ class TansHome {
             {
                 file: 'mushroom_water_house.glb',
                 name: 'house',
-                scale: 1.8,
+                scale: 3.8,
                 position: [0, 0, -5],
                 noAnimation: true,
                 interactive: true,
-                info: { name: '🏠 Tan\'s Home', description: 'This magical house was built just for you, Tanmai.', fact: 'Every room is filled with memories of us!' }
+                info: { name: '🏠 Tan\'s Home', description: 'This home is just yours!' }
             },
             // POSTBOX
             {
                 file: 'red_post_box.glb',
                 name: 'postbox',
-                scale: 1.0,
+                scale: 2.0,
                 position: [8, 0, 3],
                 rotation: [0, -0.5, 0],
                 noAnimation: true,
@@ -215,8 +265,8 @@ class TansHome {
             {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
-                scale: 0.15,
-                position: [0, 40, 0],  // START VERY HIGH!
+                scale: 0.08,
+                position: [20, 90, 10],  // START VERY HIGH!
                 animate: true,
                 phoenixFly: true,  // Special free flying!
                 addGlow: true,
@@ -229,12 +279,12 @@ class TansHome {
             {
                 file: 'mythic_whale_-_stylized_animated_model.glb',
                 name: 'whale',
-                scale: 2.0,
-                position: [-30, 18, 15],
+                scale: 100.0,
+                position: [-100, 88, 15],
                 animate: true,
                 whaleSwim: true,
                 interactive: true,
-                info: { name: '🐋 Cosmic Whale', description: 'A majestic space whale swimming through stars.', fact: 'It carries songs of the universe!' }
+                info: { name: '🐋 Cosmic Whale', description: 'he said you are as deep as i am to understand is it !' }
             },
             // ═══════════════════════════════════════════════════════════════
             // JELLYRAY 1 - Big and floating!
@@ -242,23 +292,23 @@ class TansHome {
             {
                 file: 'jellyray.glb',
                 name: 'jellyray1',
-                scale: 1.5,
-                position: [15, 12, 10],
+                scale: 3.5,
+                position: [25, 12, 20],
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { name: '🎐 Cosmic Jellyray', description: 'Graceful creatures leaving stardust trails.', fact: 'They are drawn to happiness!' }
+                info: { name: '🎐 Cosmic Jellyray', description: 'tell me about you tan he said you are so mythical like me'}
             },
             // JELLYRAY 2
             {
                 file: 'jellyray (1).glb',
                 name: 'jellyray2',
-                scale: 1.3,
-                position: [-18, 15, -10],
+                scale: 3.3,
+                position: [-28, 15, -20],
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { name: '✨ Starlight Jellyray', description: 'Carries the glow of distant galaxies.', fact: 'Holds memories of the cosmos!' }
+                info: { name: '✨ Starlight Jellyray', description: 'oh i love stars so do you miss tan!' }
             },
             // BLADDERFISH
             {
@@ -269,25 +319,25 @@ class TansHome {
                 animate: true,
                 fishSwim: true,
                 interactive: true,
-                info: { name: '🐡 Space Bladderfish', description: 'A friendly fish bringing joy.', fact: 'Lives here because of all the love!' }
+                info: { name: '🐡 Space Bladderfish', description: 'i want to know all about you miss tan!' }
             },
             // SALSA DANCER
             {
                 file: 'salsa_dance_basic_steps_-_lowpoly_style.glb',
                 name: 'dancer',
-                scale: 1.0,
+                scale: 0.03,
                 position: [-8, 0, 5],
                 rotation: [0, 0.8, 0],
                 animate: true,
                 noMovement: true,
                 interactive: true,
-                info: { name: '💃 Dancing Spirit', description: 'Dances eternally to celebrate love.', fact: 'Dances to your heartbeat!' }
+                info: { name: '💃 Dancing Spirit', description: 'i wont get tired of u tan !' }
             },
             // STYLIZED PLANET
             {
                 file: 'stylized_planet.glb',
                 name: 'stylizedPlanet',
-                scale: 20,
+                scale: 60,
                 position: [120, 60, -140],
                 spin: true,
                 interactive: true,
@@ -544,187 +594,94 @@ class TansHome {
     setupAudio() {
         const self = this;
         
-        // Create audio element
         this.audioElement = new Audio();
         this.audioElement.loop = false;
         this.audioElement.volume = 0.5;
-        this.audioElement.preload = 'auto';
+        this.audioElement.addEventListener('ended', () => this.playNextSong());
         
-        // When song ends, play next
-        this.audioElement.addEventListener('ended', () => {
-            console.log('🎵 Song ended, playing next...');
-            this.playNextSong();
-        });
-        
-        // Log when audio is ready
-        this.audioElement.addEventListener('canplaythrough', () => {
-            console.log('🎵 Audio ready to play!');
-        });
-        
-        // Log errors
-        this.audioElement.addEventListener('error', (e) => {
-            console.log('❌ Audio error:', e);
-        });
-        
-        // Scan for music files
         this.scanForMusic();
         
-        // Setup button handlers with timeout to ensure DOM is ready
-        setTimeout(() => {
-            const playBtn = document.getElementById('music-play-btn');
-            const prevBtn = document.getElementById('music-prev-btn');
-            const nextBtn = document.getElementById('music-next-btn');
-            const volSlider = document.getElementById('music-volume');
-            
-            if (playBtn) {
-                playBtn.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('▶️ Play button clicked!');
-                    self.toggleMusic();
-                    return false;
-                };
-                console.log('✓ Play button connected');
-            } else {
-                console.log('❌ Play button not found!');
-            }
-            
-            if (prevBtn) {
-                prevBtn.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('⏮️ Prev button clicked!');
-                    self.playPrevSong();
-                    return false;
-                };
-                console.log('✓ Prev button connected');
-            }
-            
-            if (nextBtn) {
-                nextBtn.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('⏭️ Next button clicked!');
-                    self.playNextSong();
-                    return false;
-                };
-                console.log('✓ Next button connected');
-            }
-            
-            if (volSlider) {
-                volSlider.oninput = function() {
-                    self.audioElement.volume = this.value / 100;
-                    console.log('🔊 Volume:', this.value + '%');
-                };
-                console.log('✓ Volume slider connected');
-            }
-            
-            console.log('🎵 Music player fully initialized!');
-        }, 100);
+        // FIXED: Use onclick directly
+        const playBtn = document.getElementById('music-play-btn');
+        const prevBtn = document.getElementById('music-prev-btn');
+        const nextBtn = document.getElementById('music-next-btn');
+        const volSlider = document.getElementById('music-volume');
+        
+        if (playBtn) {
+            playBtn.onclick = function() {
+                console.log('▶️ Play clicked!');
+                self.toggleMusic();
+            };
+        }
+        if (prevBtn) {
+            prevBtn.onclick = function() {
+                console.log('⏮️ Prev clicked!');
+                self.playPrevSong();
+            };
+        }
+        if (nextBtn) {
+            nextBtn.onclick = function() {
+                console.log('⏭️ Next clicked!');
+                self.playNextSong();
+            };
+        }
+        if (volSlider) {
+            volSlider.oninput = function() {
+                self.audioElement.volume = this.value / 100;
+            };
+        }
+        
+        console.log('🎵 Music player ready!');
     }
     
     scanForMusic() {
-        // ALL possible music locations!
         const patterns = [
-            // Public assets folder
-            'assets/music.mp3',
-            'assets/sound/music.mp3',
-            'assets/audio/music.mp3',
-            'public/music.mp3',
-            'public/sounds/music.mp3',
-            // Sounds folder
             'sounds/music.mp3',
             'sounds/Chinuku Take-SenSongsMp3.Co.mp3',
             'sounds/song.mp3',
             'sounds/background.mp3',
-            'sounds/bgm.mp3',
-            'sounds/1.mp3', 'sounds/2.mp3', 'sounds/3.mp3',
-            // Root folder
-            'music.mp3',
-            'song.mp3',
-            'background.mp3',
-            // Audio folder
-            'audio/music.mp3',
-            'audio/song.mp3'
+            'sounds/1.mp3', 'sounds/2.mp3', 'sounds/3.mp3'
         ];
-        
-        this.playlist = [];
-        let foundCount = 0;
         
         patterns.forEach(path => {
             const audio = new Audio();
             audio.src = path;
-            
             audio.oncanplaythrough = () => {
                 if (!this.playlist.includes(path)) {
                     this.playlist.push(path);
-                    foundCount++;
-                    console.log('✓ Found music:', path);
+                    console.log('✓ Found:', path);
                     this.updateMusicUI();
                 }
             };
-            
-            audio.onerror = () => {
-                // Silent fail - file doesn't exist
-            };
         });
         
-        // Show message if no music found after 3 seconds
         setTimeout(() => {
             if (this.playlist.length === 0) {
                 const el = document.getElementById('music-name');
-                if (el) el.textContent = 'Put music.mp3 in sounds/ folder';
-                console.log('❌ No music found. Add music.mp3 to sounds/ folder');
+                if (el) el.textContent = 'Add .mp3 to sounds/';
             }
         }, 3000);
     }
     
     updateMusicUI() {
         if (this.playlist.length > 0) {
-            const currentPath = this.playlist[this.state.currentSongIndex];
-            const name = currentPath.split('/').pop();
+            const name = this.playlist[this.state.currentSongIndex].split('/').pop();
             const el = document.getElementById('music-name');
             if (el) el.textContent = '🎵 ' + decodeURIComponent(name);
-            
-            // Always set the source when we have music
-            if (!this.audioElement.src || this.audioElement.src === '' || this.audioElement.src === window.location.href) {
-                this.audioElement.src = currentPath;
-                console.log('🎵 Audio source set to:', currentPath);
-            }
+            if (!this.audioElement.src) this.audioElement.src = this.playlist[0];
         }
     }
     
     playMusic() {
-        console.log('🎵 Attempting to play music...');
-        console.log('Playlist:', this.playlist);
-        
-        if (this.playlist.length === 0) {
-            console.log('❌ No music in playlist!');
-            return;
-        }
-        
-        // Make sure we have a source
-        if (!this.audioElement.src || this.audioElement.src === '' || this.audioElement.src === window.location.href) {
-            this.audioElement.src = this.playlist[this.state.currentSongIndex];
-            console.log('🎵 Set source to:', this.playlist[this.state.currentSongIndex]);
-        }
-        
-        // Try to play
-        const playPromise = this.audioElement.play();
-        
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => {
-                    this.state.musicPlaying = true;
-                    const btn = document.getElementById('music-play-btn');
-                    if (btn) btn.innerHTML = '<i class="fas fa-pause"></i>';
-                    console.log('▶️ Music playing!');
-                })
-                .catch(e => {
-                    console.log('❌ Play error:', e.message);
-                    console.log('Click the play button again after interacting with the page');
-                });
-        }
+        if (this.playlist.length === 0) return;
+        if (!this.audioElement.src) this.audioElement.src = this.playlist[this.state.currentSongIndex];
+        this.audioElement.play()
+            .then(() => {
+                this.state.musicPlaying = true;
+                const btn = document.getElementById('music-play-btn');
+                if (btn) btn.innerHTML = '<i class="fas fa-pause"></i>';
+            })
+            .catch(e => console.log('Play error:', e));
     }
     
     pauseMusic() {
