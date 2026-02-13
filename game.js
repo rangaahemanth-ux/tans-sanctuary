@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// TAN'S HOME — Where Dreams Take Flight
-// A Universe Woven from Stardust and Love 💫
+// TAN'S HOME — All Your Models Edition
+// Phoenix flies FREE and HIGH! Whale swims! Music WORKS!
 // ═══════════════════════════════════════════════════════════════════════════
 
 class TansHome {
@@ -38,11 +38,6 @@ class TansHome {
         this.audioElement = null;
         this.playlist = [];
         
-        // NEW: For enhanced effects
-        this.petals = [];
-        this.heartStars = [];
-        this.shootingStars = [];
-        
         this.init();
     }
     
@@ -57,12 +52,9 @@ class TansHome {
         this.setupAudio();
         
         // ═══════════════════════════════════════════════════════════════
-        // NEW MAGICAL EFFECTS!
+        // ONLY SHOOTING STARS!
         // ═══════════════════════════════════════════════════════════════
-        this.createFloatingPetals();
-        this.createHeartConstellation();
         this.startShootingStars();
-        this.createAuroraLights();
         
         this.animate();
     }
@@ -194,74 +186,7 @@ class TansHome {
     }
     
     // ═══════════════════════════════════════════════════════════════════════════
-    // NEW: FLOATING ROSE PETALS! 🌹
-    // ═══════════════════════════════════════════════════════════════════════════
-    createFloatingPetals() {
-        const petalCount = 80;
-        
-        for (let i = 0; i < petalCount; i++) {
-            const petal = new THREE.Mesh(
-                new THREE.CircleGeometry(0.15, 8),
-                new THREE.MeshBasicMaterial({
-                    color: Math.random() > 0.5 ? 0xff6b8b : 0xffaacc,
-                    transparent: true,
-                    opacity: 0.7,
-                    side: THREE.DoubleSide
-                })
-            );
-            
-            petal.position.set(
-                (Math.random() - 0.5) * 60,
-                Math.random() * 40 + 5,
-                (Math.random() - 0.5) * 60
-            );
-            
-            this.scene.add(petal);
-            this.petals.push({
-                mesh: petal,
-                speed: 0.2 + Math.random() * 0.4,
-                swaySpeed: 0.8 + Math.random() * 1.5,
-                swayAmount: 1 + Math.random() * 3,
-                rotSpeed: 1 + Math.random() * 2
-            });
-        }
-    }
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // NEW: HEART CONSTELLATION! 💖
-    // ═══════════════════════════════════════════════════════════════════════════
-    createHeartConstellation() {
-        const heartPoints = [];
-        const segments = 60;
-        
-        for (let i = 0; i < segments; i++) {
-            const t = (i / segments) * Math.PI * 2;
-            const x = 16 * Math.pow(Math.sin(t), 3);
-            const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
-            heartPoints.push(new THREE.Vector3(x * 2.5, y * 2.5 + 55, -180));
-        }
-        
-        heartPoints.forEach((pos, index) => {
-            const star = new THREE.Mesh(
-                new THREE.SphereGeometry(0.6, 8, 8),
-                new THREE.MeshBasicMaterial({
-                    color: 0xff6b8b,
-                    transparent: true,
-                    opacity: 0.9
-                })
-            );
-            star.position.copy(pos);
-            this.scene.add(star);
-            
-            const light = new THREE.PointLight(0xff6b8b, 2, 12);
-            star.add(light);
-            
-            this.heartStars.push({ mesh: star, offset: index * 0.1 });
-        });
-    }
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // NEW: SHOOTING STARS! 🌠
+    // SHOOTING STARS! 🌠
     // ═══════════════════════════════════════════════════════════════════════════
     startShootingStars() {
         setInterval(() => {
@@ -269,66 +194,39 @@ class TansHome {
             
             const start = new THREE.Vector3(
                 (Math.random() - 0.5) * 200,
-                40 + Math.random() * 60,
+                40 + Math.random() * 50,
                 (Math.random() - 0.5) * 200
             );
             
             const end = start.clone().add(new THREE.Vector3(
-                (Math.random() - 0.5) * 120,
-                -90,
-                (Math.random() - 0.5) * 120
+                (Math.random() - 0.5) * 100,
+                -80,
+                (Math.random() - 0.5) * 100
             ));
             
             const points = [start, end];
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
             const material = new THREE.LineBasicMaterial({
-                color: Math.random() > 0.5 ? 0xffffff : 0xff6b8b,
+                color: 0xffffff,
                 transparent: true,
-                opacity: 1,
-                linewidth: 2
+                opacity: 1
             });
             
             const star = new THREE.Line(geometry, material);
             this.scene.add(star);
             
-            // Add a glowing point at the head
-            const glow = new THREE.Mesh(
-                new THREE.SphereGeometry(0.3, 8, 8),
-                new THREE.MeshBasicMaterial({ color: 0xffffff })
-            );
-            glow.position.copy(start);
-            this.scene.add(glow);
-            
             let opacity = 1;
-            let progress = 0;
             const fadeOut = setInterval(() => {
-                opacity -= 0.04;
-                progress += 0.04;
+                opacity -= 0.05;
                 material.opacity = opacity;
-                glow.position.lerpVectors(start, end, progress);
-                
                 if (opacity <= 0) {
                     this.scene.remove(star);
-                    this.scene.remove(glow);
+                    geometry.dispose();
+                    material.dispose();
                     clearInterval(fadeOut);
                 }
-            }, 40);
-        }, 2500 + Math.random() * 4000);
-    }
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // NEW: AURORA LIGHTS! ✨
-    // ═══════════════════════════════════════════════════════════════════════════
-    createAuroraLights() {
-        const aurora1 = new THREE.PointLight(0x66ff88, 1.5, 80);
-        aurora1.position.set(40, 35, -30);
-        this.scene.add(aurora1);
-        this.aurora1 = aurora1;
-        
-        const aurora2 = new THREE.PointLight(0xff66aa, 1.5, 80);
-        aurora2.position.set(-40, 30, 25);
-        this.scene.add(aurora2);
-        this.aurora2 = aurora2;
+            }, 50);
+        }, 3000 + Math.random() * 5000);
     }
     
     async loadModels() {
@@ -336,7 +234,7 @@ class TansHome {
         const loadStatus = document.getElementById('load-status');
         
         // ═══════════════════════════════════════════════════════════════
-        // POETIC CREATURE MESSAGES! 📜
+        // ALL YOUR ACTUAL GLB FILES!
         // ═══════════════════════════════════════════════════════════════
         const models = [
             // HOUSE
@@ -347,11 +245,7 @@ class TansHome {
                 position: [0, 0, -5],
                 noAnimation: true,
                 interactive: true,
-                info: { 
-                    name: '🏠 Where My Heart Lives', 
-                    description: 'Not just walls and roof above,\nBut a sanctuary built from love.',
-                    fact: 'Every corner whispers your name' 
-                }
+                info: { name: '🏠 Tan\'s Home', description: 'This home is just yours!' }
             },
             // POSTBOX
             {
@@ -363,28 +257,24 @@ class TansHome {
                 noAnimation: true,
                 interactive: true,
                 isLetter: true,
-                info: { name: '💌 A Letter Written in Starlight', description: 'Words that traveled through time...', fact: '' }
+                info: { name: '💌 Love Letter', description: 'A special letter...', fact: '' }
             },
             // ═══════════════════════════════════════════════════════════════
-            // PHOENIX - FLIES TRULY FREE!
+            // PHOENIX - FLIES FREE AND HIGH!!!
             // ═══════════════════════════════════════════════════════════════
             {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
                 scale: 0.08,
-                position: [20, 90, 10],
+                position: [20, 90, 10],  // START VERY HIGH!
                 animate: true,
-                phoenixFly: true,
+                phoenixFly: true,  // Special free flying!
                 addGlow: true,
                 interactive: true,
-                info: { 
-                    name: '🔥 Phoenix of Eternal Flame', 
-                    description: 'You rise like fire, burning bright and free,\nA guardian angel watching over me.',
-                    fact: 'From ashes of loneliness, you brought me life' 
-                }
+                info: { name: '🔥 Guardian Phoenix', description: 'This firebird soars freely across the sky!', fact: 'It grants wishes to those with pure hearts!' }
             },
             // ═══════════════════════════════════════════════════════════════
-            // MYTHIC WHALE - Swims like poetry
+            // MYTHIC WHALE - Swims gracefully
             // ═══════════════════════════════════════════════════════════════
             {
                 file: 'mythic_whale_-_stylized_animated_model.glb',
@@ -394,14 +284,10 @@ class TansHome {
                 animate: true,
                 whaleSwim: true,
                 interactive: true,
-                info: { 
-                    name: '🐋 Cosmic Whale', 
-                    description: 'Like oceans deep, like mysteries profound,\nYou are the depth where true love is found.',
-                    fact: 'In your eyes, I see galaxies unfold' 
-                }
+                info: { name: '🐋 Cosmic Whale', description: 'he said you are as deep as i am to understand is it !' }
             },
             // ═══════════════════════════════════════════════════════════════
-            // JELLYRAY 1
+            // JELLYRAY 1 - Big and floating!
             // ═══════════════════════════════════════════════════════════════
             {
                 file: 'jellyray.glb',
@@ -411,11 +297,7 @@ class TansHome {
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { 
-                    name: '🎐 Cosmic Jellyray', 
-                    description: 'You drift through my mind like stardust in wind,\nMythical and rare, where does your magic begin?',
-                    fact: 'Tell me your stories, I\'ll listen forever' 
-                }
+                info: { name: '🎐 Cosmic Jellyray', description: 'tell me about you tan he said you are so mythical like me'}
             },
             // JELLYRAY 2
             {
@@ -426,11 +308,7 @@ class TansHome {
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { 
-                    name: '✨ Starlight Jellyray', 
-                    description: 'You love the stars? So do I, my dear,\nEach one whispers your name when you\'re near.',
-                    fact: 'We are made of the same cosmic light' 
-                }
+                info: { name: '✨ Starlight Jellyray', description: 'oh i love stars so do you miss tan!' }
             },
             // BLADDERFISH
             {
@@ -441,11 +319,7 @@ class TansHome {
                 animate: true,
                 fishSwim: true,
                 interactive: true,
-                info: { 
-                    name: '🐡 Wandering Spirit', 
-                    description: 'I want to know every chapter of you,\nEvery dream, every wish, every morning dew.',
-                    fact: 'Your soul is a book I\'ll never finish reading' 
-                }
+                info: { name: '🐡 Space Bladderfish', description: 'i want to know all about you miss tan!' }
             },
             // SALSA DANCER
             {
@@ -457,11 +331,7 @@ class TansHome {
                 animate: true,
                 noMovement: true,
                 interactive: true,
-                info: { 
-                    name: '💃 Eternal Dance', 
-                    description: 'Like this dancer, my heart moves only for you,\nTireless, endless, forever true.',
-                    fact: 'In your rhythm, I find my meaning' 
-                }
+                info: { name: '💃 Dancing Spirit', description: 'i wont get tired of u tan !' }
             },
             // STYLIZED PLANET
             {
@@ -471,11 +341,7 @@ class TansHome {
                 position: [120, 60, -140],
                 spin: true,
                 interactive: true,
-                info: { 
-                    name: '🌍 Dream World', 
-                    description: 'A world painted in the colors of hope,\nWhere love and wonder endlessly elope.',
-                    fact: 'Every hue holds a piece of my heart' 
-                }
+                info: { name: '🌍 Dream World', description: 'A colorful planet painted by the universe.', fact: 'Every color is an emotion!' }
             },
             // PAPYRUS
             {
@@ -554,7 +420,7 @@ class TansHome {
                     this.mixers.push(mixer);
                 }
                 
-                // Movement - MORE FREEDOM!
+                // Movement
                 if (!config.noMovement && (config.phoenixFly || config.whaleSwim || config.jellyFloat || config.fishSwim || config.float || config.spin)) {
                     this.floatingObjects.push({
                         mesh: model,
@@ -564,13 +430,7 @@ class TansHome {
                         angle: Math.random() * Math.PI * 2,
                         targetAngle: Math.random() * Math.PI * 2,
                         height: config.position[1],
-                        targetHeight: config.position[1] + Math.random() * 20,
-                        // NEW: Individual personalities!
-                        personality: {
-                            speed: 0.5 + Math.random() * 1.5,
-                            wildness: Math.random(),
-                            verticalRange: 10 + Math.random() * 30
-                        }
+                        targetHeight: config.position[1] + Math.random() * 20
                     });
                 }
                 
@@ -590,109 +450,64 @@ class TansHome {
     }
     
     addMoreCreatures() {
-        // More jellyfish with varied behaviors
+        // More jellyfish
         if (this.models.jellyray1) {
-            [
-                [20, 20, -15],
-                [-25, 16, 20],
-                [5, 25, 25],
-                [-15, 18, -25],
-                [30, 22, 8]
-            ].forEach(pos => {
+            [[20, 20, -15], [-25, 16, 20], [5, 25, 25]].forEach(pos => {
                 const clone = this.models.jellyray1.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(0.8 + Math.random() * 1.2);
+                clone.scale.setScalar(1.0 + Math.random() * 0.8);
                 this.scene.add(clone);
                 this.floatingObjects.push({
-                    mesh: clone,
-                    config: { jellyFloat: true },
-                    base: clone.position.clone(),
-                    time: Math.random() * 100,
-                    angle: Math.random() * Math.PI * 2,
-                    personality: {
-                        speed: 0.3 + Math.random(),
-                        wildness: Math.random(),
-                        verticalRange: 8 + Math.random() * 15
-                    }
+                    mesh: clone, config: { jellyFloat: true },
+                    base: clone.position.clone(), time: Math.random() * 100,
+                    angle: Math.random() * Math.PI * 2
                 });
             });
         }
         
-        // More bladderfish - they swim in schools!
+        // More bladderfish
         if (this.models.bladderfish) {
-            [
-                [-15, 10, 15],
-                [20, 7, 10],
-                [-10, 12, -12],
-                [18, 9, -8],
-                [-22, 11, 8]
-            ].forEach(pos => {
+            [[-15, 10, 15], [20, 7, 10]].forEach(pos => {
                 const clone = this.models.bladderfish.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(0.6 + Math.random() * 0.6);
+                clone.scale.setScalar(0.7 + Math.random() * 0.4);
                 this.scene.add(clone);
                 this.floatingObjects.push({
-                    mesh: clone,
-                    config: { fishSwim: true },
-                    base: clone.position.clone(),
-                    time: Math.random() * 100,
-                    angle: Math.random() * Math.PI * 2,
-                    personality: {
-                        speed: 0.8 + Math.random() * 0.8,
-                        wildness: Math.random() * 0.7,
-                        verticalRange: 5 + Math.random() * 8
-                    }
+                    mesh: clone, config: { fishSwim: true },
+                    base: clone.position.clone(), time: Math.random() * 100,
+                    angle: Math.random() * Math.PI * 2
                 });
             });
         }
         
-        // Another whale - majestic!
+        // Another whale
         if (this.models.whale) {
             const clone = this.models.whale.clone();
             clone.position.set(35, 22, -20);
             clone.scale.setScalar(1.5);
             this.scene.add(clone);
             this.floatingObjects.push({
-                mesh: clone,
-                config: { whaleSwim: true },
-                base: clone.position.clone(),
-                time: Math.random() * 100,
-                angle: Math.random() * Math.PI * 2 + Math.PI,
-                personality: {
-                    speed: 0.4,
-                    wildness: 0.3,
-                    verticalRange: 12
-                }
+                mesh: clone, config: { whaleSwim: true },
+                base: clone.position.clone(), time: Math.random() * 100,
+                angle: Math.random() * Math.PI * 2 + Math.PI
             });
         }
     }
     
     createHomeText() {
         const canvas = document.createElement('canvas');
-        canvas.width = 1200;
-        canvas.height = 300;
+        canvas.width = 1024; canvas.height = 256;
         const ctx = canvas.getContext('2d');
-        
-        ctx.shadowColor = '#ff6b8b';
-        ctx.shadowBlur = 50;
-        ctx.fillStyle = '#ffffff';
-        ctx.strokeStyle = '#ff6b8b';
-        ctx.lineWidth = 8;
-        ctx.font = 'bold 110px "Brush Script MT", cursive';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        ctx.strokeText("Where My Heart Lives", 600, 110);
-        ctx.fillText("Where My Heart Lives", 600, 110);
-        
-        ctx.font = 'italic 40px Georgia';
-        ctx.fillStyle = '#ffaacc';
-        ctx.shadowBlur = 25;
-        ctx.fillText('✨ A Universe Built For You ✨', 600, 200);
+        ctx.shadowColor = '#ff6b8b'; ctx.shadowBlur = 40;
+        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#ff6b8b'; ctx.lineWidth = 6;
+        ctx.font = 'bold 120px Georgia'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.strokeText("Tan's Home", 512, 100); ctx.fillText("Tan's Home", 512, 100);
+        ctx.font = '36px serif'; ctx.fillStyle = '#ffaacc'; ctx.shadowBlur = 20;
+        ctx.fillText('💕 Made with love 💕', 512, 180);
         
         const texture = new THREE.CanvasTexture(canvas);
         const text = new THREE.Mesh(
-            new THREE.PlaneGeometry(12, 3),
+            new THREE.PlaneGeometry(10, 2.5),
             new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide })
         );
         text.position.set(0, 9, -7);
@@ -734,9 +549,9 @@ class TansHome {
         this.scene.add(moon);
         
         [
-            { obj: jupiter, info: { name: '🪐 Jupiter', description: 'King of the celestial dance,\nWhere storms of passion endlessly romance.', fact: 'Each swirl holds a thousand wishes' }},
-            { obj: saturn, info: { name: '🪐 Saturn', description: 'Adorned with rings of memories spun,\nEach orbit marks a love begun.', fact: 'Every ring is a promise kept' }},
-            { obj: moon, info: { name: '🌙 Moon', description: 'Gentle guardian of the night,\nReflecting love in silver light.', fact: 'When I see you, the moon smiles' }}
+            { obj: jupiter, info: { name: '🪐 Jupiter', description: 'King of planets.', fact: 'Storm of love!' }},
+            { obj: saturn, info: { name: '🪐 Saturn', description: 'Ringed wonder.', fact: 'Each ring is a memory!' }},
+            { obj: moon, info: { name: '🌙 Moon', description: 'Lights up the night.', fact: 'I think of you!' }}
         ].forEach(p => this.interactables.push({ object: p.obj, info: p.info, action: () => this.showInfoCard(p.info) }));
         
         this.skyPlanets = { jupiter, saturn, saturnRing, moon };
@@ -773,6 +588,9 @@ class TansHome {
         document.querySelector('#info-card-modal .modal-backdrop')?.addEventListener('click', () => this.closeInfoCard());
     }
     
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FIXED MUSIC PLAYER!
+    // ═══════════════════════════════════════════════════════════════════════════
     setupAudio() {
         const self = this;
         
@@ -783,6 +601,7 @@ class TansHome {
         
         this.scanForMusic();
         
+        // FIXED: Use onclick directly
         const playBtn = document.getElementById('music-play-btn');
         const prevBtn = document.getElementById('music-prev-btn');
         const nextBtn = document.getElementById('music-next-btn');
@@ -938,17 +757,17 @@ class TansHome {
         this.state.fireworksShown = true;
         const container = document.getElementById('fireworks-container');
         if (!container) return;
-        const colors = ['#ff6b8b', '#ffcc00', '#ff8e53', '#9966ff', '#66ffaa'];
-        for (let i = 0; i < 25; i++) {
+        const colors = ['#ff6b8b', '#ffcc00', '#ff8e53', '#9966ff'];
+        for (let i = 0; i < 20; i++) {
             setTimeout(() => {
-                const x = 10 + Math.random() * 80, y = 10 + Math.random() * 60;
+                const x = 15 + Math.random() * 70, y = 15 + Math.random() * 50;
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                for (let j = 0; j < 25; j++) {
+                for (let j = 0; j < 20; j++) {
                     const p = document.createElement('div');
                     p.className = 'firework';
-                    p.style.cssText = `left:${x}%;top:${y}%;background:${color};box-shadow:0 0 15px ${color}`;
+                    p.style.cssText = `left:${x}%;top:${y}%;background:${color};box-shadow:0 0 10px ${color}`;
                     container.appendChild(p);
-                    setTimeout(() => p.remove(), 1800);
+                    setTimeout(() => p.remove(), 1500);
                 }
             }, i * 250);
         }
@@ -956,7 +775,7 @@ class TansHome {
     
     showValentineMessage() {
         const msg = document.getElementById('valentine-message');
-        if (msg) { msg.classList.remove('hidden'); setTimeout(() => msg.classList.add('hidden'), 6000); }
+        if (msg) { msg.classList.remove('hidden'); setTimeout(() => msg.classList.add('hidden'), 5000); }
     }
     
     finishLoading() {
@@ -1006,157 +825,87 @@ class TansHome {
     }
     
     // ═══════════════════════════════════════════════════════════════════════════
-    // ENHANCED ANIMATIONS - CREATURES MOVE LIKE LIVING BEINGS! 🌊🔥
+    // ANIMATIONS - PHOENIX FLIES FREE AND HIGH!
     // ═══════════════════════════════════════════════════════════════════════════
     updateAnimations(delta, time) {
         this.mixers.forEach(m => m.update(delta));
         
-        // ═══════════════════════════════════════════════════════════════
-        // CREATURES WITH PERSONALITIES AND FREEDOM!
-        // ═══════════════════════════════════════════════════════════════
         for (const obj of this.floatingObjects) {
             obj.time += delta;
             const t = obj.time;
-            const p = obj.personality || { speed: 1, wildness: 0.5, verticalRange: 15 };
             
             if (obj.config.phoenixFly) {
                 // ═══════════════════════════════════════════════════════════
-                // PHOENIX - TRULY FREE FLIGHT WITH PERSONALITY!
+                // PHOENIX FLIES FREE ACROSS THE ENTIRE SKY!
                 // ═══════════════════════════════════════════════════════════
-                const flyRadius = 70 + Math.sin(t * 0.04 * p.speed) * 40;
-                const flyHeight = 35 + Math.sin(t * 0.06 * p.speed) * 25;
+                const flyRadius = 60 + Math.sin(t * 0.05) * 30;  // HUGE flight radius!
+                const flyHeight = 30 + Math.sin(t * 0.08) * 20;  // 10-50 units HIGH!
                 
-                obj.angle += delta * 0.25 * p.speed;
+                obj.angle += delta * 0.3;  // Steady flight speed
                 
-                // More complex flight pattern - figure-8s and swoops!
-                const xPattern = Math.cos(obj.angle) * flyRadius;
-                const zPattern = Math.sin(obj.angle * 0.6) * flyRadius * 1.2;
+                // Fly in big sweeping patterns
+                obj.mesh.position.x = Math.cos(obj.angle) * flyRadius;
+                obj.mesh.position.z = Math.sin(obj.angle * 0.7) * flyRadius;
+                obj.mesh.position.y = flyHeight + Math.sin(t * 0.5) * 8;  // Swooping!
                 
-                obj.mesh.position.x = xPattern + Math.sin(t * 0.3) * 15;
-                obj.mesh.position.z = zPattern + Math.cos(t * 0.25) * 15;
-                obj.mesh.position.y = flyHeight + Math.sin(t * 0.4) * 12 + Math.cos(t * 0.7) * 8;
-                
-                // Dynamic banking and pitching based on direction
-                obj.mesh.rotation.y = obj.angle + Math.PI / 2 + Math.sin(t * 0.5) * 0.3;
-                obj.mesh.rotation.z = Math.sin(t * 0.7) * 0.5 + Math.cos(obj.angle * 2) * 0.3;
-                obj.mesh.rotation.x = Math.cos(t * 0.5) * 0.3 + Math.sin(t) * 0.15;
+                // Face direction of flight with banking
+                obj.mesh.rotation.y = obj.angle + Math.PI / 2;
+                obj.mesh.rotation.z = Math.sin(t * 0.8) * 0.4;  // Banking in turns
+                obj.mesh.rotation.x = Math.cos(t * 0.6) * 0.2;  // Pitch variation
                 
             } else if (obj.config.whaleSwim) {
-                // ═══════════════════════════════════════════════════════════
-                // WHALE - MAJESTIC OCEAN-LIKE SWIMMING!
-                // ═══════════════════════════════════════════════════════════
-                const swimRadius = 50 + Math.sin(t * 0.025 * p.speed) * 20;
-                obj.angle += delta * 0.05 * p.speed;
+                // Whale swims slowly and gracefully
+                const swimRadius = 40 + Math.sin(t * 0.03) * 15;
+                obj.angle += delta * 0.06;  // Slow majestic movement
                 
-                // Graceful spiraling motion
-                obj.mesh.position.x = Math.cos(obj.angle) * swimRadius + Math.sin(t * 0.2) * 10;
-                obj.mesh.position.z = Math.sin(obj.angle) * swimRadius + Math.cos(t * 0.15) * 10;
-                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.12) * 8 + Math.cos(t * 0.08) * 5;
+                obj.mesh.position.x = Math.cos(obj.angle) * swimRadius;
+                obj.mesh.position.z = Math.sin(obj.angle) * swimRadius;
+                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.15) * 6;
                 
-                // Gentle rolling and tail movement
                 obj.mesh.rotation.y = obj.angle + Math.PI / 2;
-                obj.mesh.rotation.z = Math.sin(t * 0.18) * 0.2;
-                obj.mesh.rotation.x = Math.cos(t * 0.15) * 0.12;
+                obj.mesh.rotation.z = Math.sin(t * 0.2) * 0.15;
                 
             } else if (obj.config.jellyFloat) {
-                // ═══════════════════════════════════════════════════════════
-                // JELLYFISH - PULSING UPWARD LIKE REAL JELLIES!
-                // ═══════════════════════════════════════════════════════════
-                const driftX = Math.sin(t * 0.12 * p.speed) * 15 * p.wildness;
-                const driftZ = Math.cos(t * 0.1 * p.speed) * 15 * p.wildness;
+                // Jellyfish float and pulse UPWARD
+                obj.mesh.position.x = obj.base.x + Math.sin(t * 0.15) * 12;
+                obj.mesh.position.z = obj.base.z + Math.cos(t * 0.12) * 12;
                 
-                obj.mesh.position.x = obj.base.x + driftX + Math.sin(t * 0.3) * 5;
-                obj.mesh.position.z = obj.base.z + driftZ + Math.cos(t * 0.25) * 5;
+                // Pulse UP like real jellyfish!
+                const pulse = Math.max(0, Math.sin(t * 1.2)) * 4;
+                obj.mesh.position.y = obj.base.y + pulse + Math.sin(t * 0.2) * 3;
                 
-                // PULSE UPWARD like real jellyfish pumping!
-                const pulse = Math.max(0, Math.sin(t * 1.0 * p.speed)) * 6;
-                const drift = Math.sin(t * 0.15) * p.verticalRange * 0.3;
-                obj.mesh.position.y = obj.base.y + pulse + drift;
-                
-                // Gentle spinning and tilting
-                obj.mesh.rotation.y += delta * 0.06;
-                obj.mesh.rotation.x = Math.sin(t * 0.4) * 0.15;
-                obj.mesh.rotation.z = Math.cos(t * 0.35) * 0.15;
+                obj.mesh.rotation.y += delta * 0.08;
                 
             } else if (obj.config.fishSwim) {
-                // ═══════════════════════════════════════════════════════════
-                // FISH - DARTING SCHOOL BEHAVIOR!
-                // ═══════════════════════════════════════════════════════════
-                const swimR = 18 + Math.sin(t * 0.15 * p.speed) * 8;
-                obj.angle += delta * 0.3 * p.speed;
+                // Fish swim around
+                const swimR = 15 + Math.sin(t * 0.2) * 5;
+                obj.angle += delta * 0.25;
                 
-                // Darting, school-like movement
-                obj.mesh.position.x = obj.base.x + Math.cos(obj.angle) * swimR + Math.sin(t * 0.8) * 4;
-                obj.mesh.position.z = obj.base.z + Math.sin(obj.angle) * swimR + Math.cos(t * 0.7) * 4;
-                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.5 * p.speed) * 3 + Math.cos(t * 0.9) * 2;
+                obj.mesh.position.x = obj.base.x + Math.cos(obj.angle) * swimR * 0.4;
+                obj.mesh.position.z = obj.base.z + Math.sin(obj.angle) * swimR * 0.4;
+                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.4) * 2;
                 
-                // Quick direction changes
-                obj.mesh.rotation.y = obj.angle + Math.PI / 2 + Math.sin(t * 1.5) * 0.4;
-                obj.mesh.rotation.x = Math.sin(t * 0.8) * 0.2;
+                obj.mesh.rotation.y = obj.angle + Math.PI / 2;
                 
             } else if (obj.config.float) {
-                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.5) * 0.4;
-                obj.mesh.rotation.y += delta * 0.1;
+                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.5) * 0.3;
                 
             } else if (obj.config.spin) {
-                obj.mesh.rotation.y += delta * 0.015;
-                obj.mesh.rotation.x = Math.sin(t * 0.1) * 0.05;
+                obj.mesh.rotation.y += delta * 0.02;
             }
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // ROSE PETALS FALLING!
-        // ═══════════════════════════════════════════════════════════════
-        if (this.petals) {
-            this.petals.forEach(p => {
-                p.mesh.position.y -= delta * p.speed;
-                p.mesh.position.x += Math.sin(time * p.swaySpeed + p.mesh.position.z) * delta * p.swayAmount;
-                p.mesh.position.z += Math.cos(time * p.swaySpeed * 0.7 + p.mesh.position.x) * delta * p.swayAmount * 0.5;
-                p.mesh.rotation.z += delta * p.rotSpeed;
-                p.mesh.rotation.x += delta * p.rotSpeed * 0.5;
-                
-                // Respawn at top
-                if (p.mesh.position.y < 0) {
-                    p.mesh.position.y = 35 + Math.random() * 10;
-                    p.mesh.position.x = (Math.random() - 0.5) * 60;
-                    p.mesh.position.z = (Math.random() - 0.5) * 60;
-                }
-            });
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // HEART CONSTELLATION TWINKLING!
-        // ═══════════════════════════════════════════════════════════════
-        if (this.heartStars) {
-            this.heartStars.forEach((star, i) => {
-                const twinkle = Math.sin(time * 2 + star.offset) * 0.4 + 0.6;
-                star.mesh.material.opacity = twinkle;
-                star.mesh.scale.setScalar(0.8 + twinkle * 0.4);
-            });
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // AURORA LIGHTS DANCING!
-        // ═══════════════════════════════════════════════════════════════
-        if (this.aurora1 && this.aurora2) {
-            this.aurora1.intensity = 1.2 + Math.sin(time * 0.8) * 0.5;
-            this.aurora2.intensity = 1.2 + Math.cos(time * 0.7) * 0.5;
-            
-            this.aurora1.position.x = 40 + Math.sin(time * 0.3) * 15;
-            this.aurora2.position.x = -40 + Math.cos(time * 0.25) * 15;
-        }
-        
-        if (this.stars) this.stars.rotation.y += delta * 0.003;
+        if (this.stars) this.stars.rotation.y += delta * 0.002;
         if (this.particles) {
             const pos = this.particles.geometry.attributes.position.array;
-            for (let i = 1; i < pos.length; i += 3) pos[i] += Math.sin(time + i) * 0.003;
+            for (let i = 1; i < pos.length; i += 3) pos[i] += Math.sin(time + i) * 0.002;
             this.particles.geometry.attributes.position.needsUpdate = true;
         }
-        if (this.glowRing) this.glowRing.material.opacity = 0.35 + Math.sin(time * 2) * 0.2;
+        if (this.glowRing) this.glowRing.material.opacity = 0.35 + Math.sin(time * 2) * 0.15;
         if (this.skyPlanets) {
-            this.skyPlanets.jupiter.rotation.y += delta * 0.006;
-            this.skyPlanets.saturn.rotation.y += delta * 0.009;
-            this.skyPlanets.saturnRing.rotation.z += delta * 0.004;
+            this.skyPlanets.jupiter.rotation.y += delta * 0.005;
+            this.skyPlanets.saturn.rotation.y += delta * 0.008;
+            this.skyPlanets.saturnRing.rotation.z += delta * 0.003;
         }
         if (this.homeText) this.homeText.lookAt(this.camera.position);
     }
@@ -1173,6 +922,6 @@ class TansHome {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('🏠 Starting Tan\'s Home - A Universe of Love...');
+    console.log('🏠 Starting Tan\'s Home...');
     window.game = new TansHome();
 });
