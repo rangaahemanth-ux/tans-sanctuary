@@ -248,7 +248,8 @@ class TansHome {
                 jellyFloat: true,
                 interactive: true,
                 info: { name: '🎐 Cosmic Jellyray', description: 'tell me about you tan he said you are so mythical like me'}
-            // JELLYRAY 2
+            }
+                        // JELLYRAY 2
             {
                 file: 'jellyray (1).glb',
                 name: 'jellyray2',
