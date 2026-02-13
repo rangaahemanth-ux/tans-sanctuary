@@ -722,7 +722,7 @@ class TansHome {
     scanForMusic() {
         const patterns = [
             'public/sounds/Emitemitemo - SenSongsMp3.Co.mp3',
-            'public/sounds/Neela Yevaru - SenSongsmp3.Co.m.mp3',
+            'public/sounds/Neela Yevaru - SenSongsmp3.Co.mp3',
             'public/sounds/song.mp3',
             'public/sounds/background.mp3',
             'public/sounds/1.mp3', 
