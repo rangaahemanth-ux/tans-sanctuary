@@ -234,7 +234,7 @@ class TansHome {
                 animate: true,
                 whaleSwim: true,
                 interactive: true,
-                info: { name: '🐋 Cosmic Whale', description: 'A majestic space whale swimming through stars.', fact: 'It carries songs of the universe!' }
+                info: { name: '🐋 Cosmic Whale', description: 'he said you are as deep as i am to understand is it !' }
             },
             // ═══════════════════════════════════════════════════════════════
             // JELLYRAY 1 - Big and floating!
@@ -247,8 +247,7 @@ class TansHome {
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { name: '🎐 Cosmic Jellyray', description: 'if i were to kiss u and go to hell, i would do that that i brag to devils!that i experience heaven with out entering it . its a line by shakespeare and it makes so much sense for me now' }
-            },
+                info: { name: '🎐 Cosmic Jellyray', description: 'tell me about you tan. he said you are so mythical like me .' }
             // JELLYRAY 2
             {
                 file: 'jellyray (1).glb',
@@ -258,7 +257,7 @@ class TansHome {
                 animate: true,
                 jellyFloat: true,
                 interactive: true,
-                info: { name: '✨ Starlight Jellyray', description: 'you are the best unplanned thing that happened to me !' }
+                info: { name: '✨ Starlight Jellyray', description: 'oh i love stars so do you miss tan!' }
             },
             // BLADDERFISH
             {
@@ -269,7 +268,7 @@ class TansHome {
                 animate: true,
                 fishSwim: true,
                 interactive: true,
-                info: { name: '🐡 Space Bladderfish', description: 'niku nenu vunanu.', fact: 'vuntanu!' }
+                info: { name: '🐡 Space Bladderfish', description: 'i want to know all about you miss tan!' }
             },
             // SALSA DANCER
             {
@@ -281,7 +280,7 @@ class TansHome {
                 animate: true,
                 noMovement: true,
                 interactive: true,
-                info: { name: '💃 Dancing Spirit', description: 'you make me brave enough toadmit that i wanna be happy.', fact: 'and i wanna be happy with you!' }
+                info: { name: '💃 Dancing Spirit', description: 'i wont get tired of u tan !' }
             },
             // STYLIZED PLANET
             {
