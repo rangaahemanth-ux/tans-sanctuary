@@ -721,11 +721,13 @@ class TansHome {
     
     scanForMusic() {
         const patterns = [
-            'sounds/music.mp3',
-            'sounds/Chinuku Take-SenSongsMp3.Co.mp3',
-            'sounds/song.mp3',
-            'sounds/background.mp3',
-            'sounds/1.mp3', 'sounds/2.mp3', 'sounds/3.mp3'
+            'public/sounds/music.mp3',
+            'public/sounds/Chinuku Take-SenSongsMp3.Co.mp3',
+            'public/sounds/song.mp3',
+            'public/sounds/background.mp3',
+            'public/sounds/1.mp3', 
+            'public/sounds/2.mp3', 
+            'public/sounds/3.mp3'
         ];
         
         patterns.forEach(path => {
