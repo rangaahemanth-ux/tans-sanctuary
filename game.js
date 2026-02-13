@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// TAN'S HOME — Enhanced Exploratory Movement Edition
+// TAN'S HOME — Fixed Edition with Flying Phoenix & Whale
 // Built with passion for Tanmai 💕
-// Now with improved free-roaming creature movement!
+// Phoenix flies, Whale swims, Music works!
 // ═══════════════════════════════════════════════════════════════════════════
 
 class TansHome {
@@ -206,7 +206,7 @@ class TansHome {
         const loadBar = document.getElementById('load-bar');
         const loadStatus = document.getElementById('load-status');
         
-        // ALL YOUR MODELS - WITH ENHANCED EXPLORATORY MOVEMENT
+        // UPDATED MODEL LIST - REMOVED JELLYFISH, ADDED WHALE, PHOENIX FLIES!
         const models = [
             // === HOUSE (center) ===
             {
@@ -234,70 +234,41 @@ class TansHome {
                 isLetter: true,
                 info: { name: '💌 Love Letter', description: 'A special letter waiting for you...', fact: '' }
             },
-            // === PHOENIX - TINY and far behind ===
+            // === PHOENIX - NOW FLIES AROUND THE SKY! ===
             {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
-                scale: 0.06,
-                position: [0, 12, -35],
-                rotation: [0, Math.PI, 0],
-                noAnimation: false,
-                noMovement: true,
+                scale: 0.15,  // Bigger so you can see it flying!
+                position: [0, 25, -20],  // Start high in sky
+                rotation: [0, 0, 0],
+                animate: true,  // Use animations!
+                explore: true,  // FLY AROUND!
+                birdFlight: true,  // Special bird flight behavior
+                addGlow: true,  // Add fire glow!
                 interactive: true,
                 info: {
                     name: '🔥 Guardian Phoenix',
-                    description: 'This mystical firebird watches over our home from afar.',
+                    description: 'This mystical firebird soars through the sky, watching over our home.',
                     fact: 'Legend says it grants wishes to those with pure hearts!'
                 }
             },
-            // === CRYSTAL JELLYFISH - BIG, explores freely ===
+            // === MYTHIC WHALE - NEW! ===
             {
-                file: 'crystal_jellyfish_leptomedusae.glb',
-                name: 'crystalJelly',
-                scale: 2.5,
-                position: [-15, 12, 10],
-                animate: true,
-                explore: true,  // NEW: Free exploration mode!
-                jellyPulse: true,
-                interactive: true,
-                info: {
-                    name: '💎 Crystal Jellyfish',
-                    description: 'A rare crystalline jellyfish that glows with inner light.',
-                    fact: 'Its light changes color based on the emotions around it!'
-                }
-            },
-            // === JELLYRAYS - BIG, explore freely ===
-            {
-                file: 'jellyray.glb',
-                name: 'jellyray1',
-                scale: 1.8,
-                position: [20, 15, -10],
+                file: 'mythic_whale_-_stylized_animated_model.glb',
+                name: 'whale',
+                scale: 2.0,
+                position: [-25, 18, 10],
                 animate: true,
                 explore: true,
-                jellyPulse: true,
+                swimGracefully: true,
                 interactive: true,
                 info: {
-                    name: '🎐 Cosmic Jellyray',
-                    description: 'These graceful creatures glide through space, leaving trails of stardust.',
-                    fact: 'Jellyrays are naturally drawn to happiness!'
+                    name: '🐋 Cosmic Whale',
+                    description: 'A majestic space whale that swims through the stars.',
+                    fact: 'It carries the songs of the universe within its heart!'
                 }
             },
-            {
-                file: 'jellyray (1).glb',
-                name: 'jellyray2',
-                scale: 1.5,
-                position: [-20, 18, 15],
-                animate: true,
-                explore: true,
-                jellyPulse: true,
-                interactive: true,
-                info: {
-                    name: '✨ Starlight Jellyray',
-                    description: 'This species carries the glow of distant galaxies within its body.',
-                    fact: 'Each one holds memories of the cosmos!'
-                }
-            },
-            // === BLADDERFISH - explores around ===
+            // === BLADDERFISH - still exploring ===
             {
                 file: 'bladderfish.glb',
                 name: 'bladderfish',
@@ -390,7 +361,7 @@ class TansHome {
             await this.sleep(80);
         }
         
-        // Add clones of creatures
+        // Add more creatures
         this.addCreatureClones();
         
         // Create home text
@@ -413,12 +384,43 @@ class TansHome {
                     model.position.set(...config.position);
                     if (config.rotation) model.rotation.set(...config.rotation);
                     
-                    model.traverse(child => {
-                        if (child.isMesh) {
-                            child.castShadow = true;
-                            child.receiveShadow = true;
-                        }
-                    });
+                    // Add glow effect to phoenix!
+                    if (config.addGlow) {
+                        model.traverse(child => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                                // Add fiery glow!
+                                if (child.material) {
+                                    child.material.emissive = new THREE.Color(0xff4400);
+                                    child.material.emissiveIntensity = 0.8;
+                                }
+                            }
+                        });
+                        
+                        // Add point light to phoenix for glow
+                        const phoenixLight = new THREE.PointLight(0xff6600, 3, 30);
+                        phoenixLight.position.set(0, 0, 0);
+                        model.add(phoenixLight);
+                        
+                        // Add outer glow sphere
+                        const glowGeometry = new THREE.SphereGeometry(config.scale * 8, 16, 16);
+                        const glowMaterial = new THREE.MeshBasicMaterial({
+                            color: 0xff6600,
+                            transparent: true,
+                            opacity: 0.15,
+                            side: THREE.BackSide
+                        });
+                        const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+                        model.add(glowMesh);
+                    } else {
+                        model.traverse(child => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                            }
+                        });
+                    }
                     
                     this.scene.add(model);
                     this.models[config.name] = model;
@@ -426,32 +428,29 @@ class TansHome {
                     // Animations
                     if (gltf.animations?.length && !config.noAnimation) {
                         const mixer = new THREE.AnimationMixer(model);
-                        gltf.animations.forEach(clip => mixer.clipAction(clip).play());
+                        gltf.animations.forEach(clip => {
+                            const action = mixer.clipAction(clip);
+                            action.play();
+                        });
                         this.mixers.push(mixer);
+                        console.log(`🎬 Playing ${gltf.animations.length} animations for ${config.name}`);
                     }
                     
-                    // ENHANCED MOVEMENT SYSTEM - Free exploration!
-                    if ((config.swim || config.float || config.spin || config.explore || config.jellyPulse) && !config.noMovement) {
+                    // Movement system
+                    if ((config.swim || config.float || config.spin || config.explore || config.birdFlight || config.swimGracefully) && !config.noMovement) {
                         this.floatingObjects.push({
                             mesh: model,
                             config,
                             base: new THREE.Vector3(...config.position),
                             offset: Math.random() * Math.PI * 2,
-                            
-                            // ENHANCED: Waypoint-based exploration system
                             currentWaypoint: new THREE.Vector3(...config.position),
-                            targetWaypoint: this.generateWaypoint(),
+                            targetWaypoint: config.birdFlight ? this.generateSkyWaypoint() : this.generateWaypoint(),
                             waypointProgress: 0,
-                            waypointSpeed: 0.15 + Math.random() * 0.25,
-                            
-                            // Random movement modifiers
+                            waypointSpeed: config.birdFlight ? 0.3 : (config.swimGracefully ? 0.12 : 0.2),
                             swimOffset: Math.random() * Math.PI * 2,
-                            pulsePhase: Math.random() * Math.PI * 2,
-                            tiltAmount: Math.random() * 0.3 + 0.2,
-                            
-                            // Wandering behavior
+                            tiltAmount: config.birdFlight ? 0.5 : 0.3,
                             wanderAngle: Math.random() * Math.PI * 2,
-                            wanderSpeed: 0.02 + Math.random() * 0.03
+                            wanderSpeed: config.birdFlight ? 0.04 : 0.02
                         });
                     }
                     
@@ -476,11 +475,24 @@ class TansHome {
         });
     }
     
-    // NEW: Generate random waypoints for creatures to explore towards
-    generateWaypoint() {
-        const radius = 20 + Math.random() * 25;  // Distance from center
+    // Generate waypoints high in the sky for bird flight!
+    generateSkyWaypoint() {
+        const radius = 30 + Math.random() * 40;  // Wide area
         const angle = Math.random() * Math.PI * 2;
-        const height = 8 + Math.random() * 20;  // Height range
+        const height = 20 + Math.random() * 25;  // HIGH in sky!
+        
+        return new THREE.Vector3(
+            Math.cos(angle) * radius,
+            height,
+            Math.sin(angle) * radius
+        );
+    }
+    
+    // Generate regular waypoints for other creatures
+    generateWaypoint() {
+        const radius = 20 + Math.random() * 25;
+        const angle = Math.random() * Math.PI * 2;
+        const height = 8 + Math.random() * 20;
         
         return new THREE.Vector3(
             Math.cos(angle) * radius,
@@ -490,58 +502,32 @@ class TansHome {
     }
     
     addCreatureClones() {
-        // Clone jellyrays - each exploring independently
-        if (this.models.jellyray1) {
-            [[-25, 20, 15], [30, 16, -20], [0, 22, 25]].forEach((pos, i) => {
-                const clone = this.models.jellyray1.clone();
+        // Clone whale - add more whales swimming
+        if (this.models.whale) {
+            [[30, 20, -15], [-35, 16, 20]].forEach(pos => {
+                const clone = this.models.whale.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(1.2 + Math.random() * 0.8);
-                clone.rotation.y = Math.random() * Math.PI * 2;
+                clone.scale.setScalar(1.5 + Math.random() * 1.0);
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { explore: true, jellyPulse: true, scale: clone.scale.x },
+                    config: { explore: true, swimGracefully: true, scale: clone.scale.x },
                     base: clone.position.clone(),
                     offset: Math.random() * Math.PI * 2,
                     currentWaypoint: clone.position.clone(),
                     targetWaypoint: this.generateWaypoint(),
                     waypointProgress: 0,
-                    waypointSpeed: 0.1 + Math.random() * 0.2,
-                    pulsePhase: Math.random() * Math.PI * 2,
-                    tiltAmount: Math.random() * 0.3 + 0.2,
+                    waypointSpeed: 0.1,
+                    tiltAmount: 0.25,
                     wanderAngle: Math.random() * Math.PI * 2,
-                    wanderSpeed: 0.015 + Math.random() * 0.02
+                    wanderSpeed: 0.015
                 });
             });
         }
         
-        // Clone crystal jelly - exploring with pulse
-        if (this.models.crystalJelly) {
-            [[25, 18, 10], [-30, 15, -15]].forEach(pos => {
-                const clone = this.models.crystalJelly.clone();
-                clone.position.set(...pos);
-                clone.scale.setScalar(1.8 + Math.random() * 1.0);
-                this.scene.add(clone);
-                this.floatingObjects.push({
-                    mesh: clone,
-                    config: { explore: true, jellyPulse: true, scale: clone.scale.x },
-                    base: clone.position.clone(),
-                    offset: Math.random() * Math.PI * 2,
-                    currentWaypoint: clone.position.clone(),
-                    targetWaypoint: this.generateWaypoint(),
-                    waypointProgress: 0,
-                    waypointSpeed: 0.08 + Math.random() * 0.15,
-                    pulsePhase: Math.random() * Math.PI * 2,
-                    tiltAmount: Math.random() * 0.2 + 0.15,
-                    wanderAngle: Math.random() * Math.PI * 2,
-                    wanderSpeed: 0.01 + Math.random() * 0.015
-                });
-            });
-        }
-        
-        // Clone bladderfish - exploring
+        // Clone bladderfish
         if (this.models.bladderfish) {
-            [[-20, 10, 20], [25, 8, 15], [5, 12, -18]].forEach(pos => {
+            [[-20, 10, 20], [25, 8, 15]].forEach(pos => {
                 const clone = this.models.bladderfish.clone();
                 clone.position.set(...pos);
                 clone.scale.setScalar(0.8 + Math.random() * 0.5);
@@ -554,10 +540,10 @@ class TansHome {
                     currentWaypoint: clone.position.clone(),
                     targetWaypoint: this.generateWaypoint(),
                     waypointProgress: 0,
-                    waypointSpeed: 0.2 + Math.random() * 0.2,
-                    tiltAmount: Math.random() * 0.4 + 0.2,
+                    waypointSpeed: 0.25,
+                    tiltAmount: 0.3,
                     wanderAngle: Math.random() * Math.PI * 2,
-                    wanderSpeed: 0.025 + Math.random() * 0.02
+                    wanderSpeed: 0.025
                 });
             });
         }
@@ -596,7 +582,6 @@ class TansHome {
         this.scene.add(text);
         this.homeText = text;
         
-        // Glow behind
         const glow = new THREE.Mesh(
             new THREE.PlaneGeometry(11, 3),
             new THREE.MeshBasicMaterial({ color: 0xff6b8b, transparent: true, opacity: 0.12, side: THREE.DoubleSide })
@@ -607,7 +592,6 @@ class TansHome {
     }
     
     createSkyPlanets() {
-        // Jupiter - HUGE
         const jupiter = new THREE.Mesh(
             new THREE.SphereGeometry(40, 32, 32),
             new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.8 })
@@ -615,7 +599,6 @@ class TansHome {
         jupiter.position.set(-180, 100, -250);
         this.scene.add(jupiter);
         
-        // Jupiter stripes
         const stripeColors = [0xc99b65, 0xb8845a, 0xd4a574];
         for (let i = -2; i <= 2; i++) {
             const stripe = new THREE.Mesh(
@@ -628,7 +611,6 @@ class TansHome {
             this.scene.add(stripe);
         }
         
-        // Saturn with rings - HUGE
         const saturn = new THREE.Mesh(
             new THREE.SphereGeometry(30, 32, 32),
             new THREE.MeshStandardMaterial({ color: 0xead6b8, roughness: 0.7 })
@@ -644,7 +626,6 @@ class TansHome {
         saturnRing.rotation.x = Math.PI / 2.5;
         this.scene.add(saturnRing);
         
-        // Moon - glowing, closer
         const moon = new THREE.Mesh(
             new THREE.SphereGeometry(12, 32, 32),
             new THREE.MeshStandardMaterial({ color: 0xffffee, emissive: 0xffffaa, emissiveIntensity: 0.6 })
@@ -652,7 +633,6 @@ class TansHome {
         moon.position.set(70, 60, -120);
         this.scene.add(moon);
         
-        // Moon glow
         const moonGlow = new THREE.Mesh(
             new THREE.SphereGeometry(18, 32, 32),
             new THREE.MeshBasicMaterial({ color: 0xffffcc, transparent: true, opacity: 0.15 })
@@ -660,7 +640,6 @@ class TansHome {
         moonGlow.position.copy(moon.position);
         this.scene.add(moonGlow);
         
-        // Make planets interactive
         [
             { obj: jupiter, info: { name: '🪐 Jupiter', description: 'The king of planets watches over Tan\'s Home.', fact: 'Its Great Red Spot is a storm of love!' }},
             { obj: saturn, info: { name: '🪐 Saturn', description: 'The ringed wonder, symbolizing the eternal circle of our love.', fact: 'Each ring represents a beautiful memory!' }},
@@ -708,7 +687,7 @@ class TansHome {
         document.getElementById('btn-enter').addEventListener('click', () => this.startGame());
         document.getElementById('close-letter').addEventListener('click', () => this.closeLetter());
         document.getElementById('close-info-card')?.addEventListener('click', () => this.closeInfoCard());
-        document.querySelector('#letter-modal .modal-backdrop').addEventListener('click', () => this.closeLetter());
+        document.querySelector('#letter-modal .modal-backdrop')?.addEventListener('click', () => this.closeLetter());
         document.querySelector('#info-card-modal .modal-backdrop')?.addEventListener('click', () => this.closeInfoCard());
     }
     
@@ -720,13 +699,22 @@ class TansHome {
         this.audioElement.addEventListener('ended', () => this.playNextSong());
         this.scanForMusic();
         
-        document.getElementById('music-play-btn')?.addEventListener('click', () => this.toggleMusic());
-        document.getElementById('music-prev-btn')?.addEventListener('click', () => this.playPrevSong());
-        document.getElementById('music-next-btn')?.addEventListener('click', () => this.playNextSong());
+        // FIXED: Proper event listeners for music controls
+        const playBtn = document.getElementById('music-play-btn');
+        const prevBtn = document.getElementById('music-prev-btn');
+        const nextBtn = document.getElementById('music-next-btn');
+        const volumeSlider = document.getElementById('music-volume');
         
-        document.getElementById('music-volume')?.addEventListener('input', e => {
-            this.audioElement.volume = e.target.value / 100;
-        });
+        if (playBtn) playBtn.addEventListener('click', () => this.toggleMusic());
+        if (prevBtn) prevBtn.addEventListener('click', () => this.playPrevSong());
+        if (nextBtn) nextBtn.addEventListener('click', () => this.playNextSong());
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', e => {
+                this.audioElement.volume = e.target.value / 100;
+            });
+        }
+        
+        console.log('🎵 Music player initialized');
     }
     
     scanForMusic() {
@@ -760,42 +748,66 @@ class TansHome {
         
         setTimeout(() => {
             if (this.playlist.length === 0) {
-                document.getElementById('music-name').textContent = 'Add .mp3 files to sounds/ folder';
+                const nameEl = document.getElementById('music-name');
+                if (nameEl) nameEl.textContent = 'No music found - add .mp3 to sounds/';
             }
         }, 2000);
     }
     
     updateMusicUI() {
         if (this.playlist.length > 0) {
-            const name = this.playlist[this.state.currentSongIndex].split('/').pop();
-            document.getElementById('music-name').textContent = '🎵 ' + name;
-            if (!this.audioElement.src) {
+            const name = this.playlist[this.state.currentSongIndex].split('/').pop().replace(/%20/g, ' ');
+            const nameEl = document.getElementById('music-name');
+            if (nameEl) nameEl.textContent = '🎵 ' + name;
+            
+            if (!this.audioElement.src || this.audioElement.src === '') {
                 this.audioElement.src = this.playlist[0];
+                console.log('🎵 Loaded:', this.playlist[0]);
             }
         }
     }
     
     playMusic() {
-        if (this.playlist.length === 0) return;
+        if (this.playlist.length === 0) {
+            console.log('No music in playlist');
+            return;
+        }
         
-        if (!this.audioElement.src) {
+        if (!this.audioElement.src || this.audioElement.src === '') {
             this.audioElement.src = this.playlist[this.state.currentSongIndex];
         }
         
-        this.audioElement.play().catch(e => console.log('Play blocked:', e));
-        this.state.musicPlaying = true;
-        document.getElementById('music-play-btn').innerHTML = '<i class="fas fa-pause"></i>';
+        const playPromise = this.audioElement.play();
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    this.state.musicPlaying = true;
+                    const playBtn = document.getElementById('music-play-btn');
+                    if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    console.log('▶️ Playing music');
+                })
+                .catch(e => {
+                    console.log('Play blocked:', e.message);
+                    console.log('Click play button to start music');
+                });
+        }
     }
     
     pauseMusic() {
         this.audioElement.pause();
         this.state.musicPlaying = false;
-        document.getElementById('music-play-btn').innerHTML = '<i class="fas fa-play"></i>';
+        const playBtn = document.getElementById('music-play-btn');
+        if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        console.log('⏸️ Paused music');
     }
     
     toggleMusic() {
-        if (this.state.musicPlaying) this.pauseMusic();
-        else this.playMusic();
+        console.log('🎵 Toggle music - currently:', this.state.musicPlaying ? 'playing' : 'paused');
+        if (this.state.musicPlaying) {
+            this.pauseMusic();
+        } else {
+            this.playMusic();
+        }
     }
     
     playNextSong() {
@@ -803,7 +815,10 @@ class TansHome {
         this.state.currentSongIndex = (this.state.currentSongIndex + 1) % this.playlist.length;
         this.audioElement.src = this.playlist[this.state.currentSongIndex];
         this.updateMusicUI();
-        if (this.state.musicPlaying) this.playMusic();
+        if (this.state.musicPlaying) {
+            this.playMusic();
+        }
+        console.log('⏭️ Next song');
     }
     
     playPrevSong() {
@@ -811,7 +826,10 @@ class TansHome {
         this.state.currentSongIndex = (this.state.currentSongIndex - 1 + this.playlist.length) % this.playlist.length;
         this.audioElement.src = this.playlist[this.state.currentSongIndex];
         this.updateMusicUI();
-        if (this.state.musicPlaying) this.playMusic();
+        if (this.state.musicPlaying) {
+            this.playMusic();
+        }
+        console.log('⏮️ Previous song');
     }
     
     startGame() {
@@ -914,7 +932,6 @@ class TansHome {
             this.player.position.add(dir);
         }
         
-        // Keep on platform
         const dist = Math.sqrt(this.player.position.x ** 2 + this.player.position.z ** 2);
         if (dist > 28) {
             const angle = Math.atan2(this.player.position.z, this.player.position.x);
@@ -958,112 +975,78 @@ class TansHome {
         if (nearest) {
             prompt.classList.remove('hidden');
             text.textContent = `${nearest.info?.name || 'Interact'} - Press E`;
-            crosshair.classList.add('active');
+            if (crosshair) crosshair.classList.add('active');
         } else {
             prompt.classList.add('hidden');
-            crosshair.classList.remove('active');
+            if (crosshair) crosshair.classList.remove('active');
         }
     }
     
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ENHANCED ANIMATION SYSTEM - FREE EXPLORATION!
-    // ═══════════════════════════════════════════════════════════════════════════
     updateAnimations(delta, time) {
         // GLB animations
         this.mixers.forEach(m => m.update(delta));
         
-        // ENHANCED FLOATING/EXPLORING OBJECTS
+        // Flying/swimming creatures
         for (const obj of this.floatingObjects) {
             const t = time + obj.offset;
             
-            if (obj.config.explore) {
-                // ═══════════════════════════════════════════════════════
-                // WAYPOINT-BASED EXPLORATION SYSTEM
-                // Creatures smoothly travel between waypoints, exploring freely!
-                // ═══════════════════════════════════════════════════════
-                
-                // Progress towards target waypoint
+            if (obj.config.explore || obj.config.birdFlight || obj.config.swimGracefully) {
+                // Waypoint navigation
                 obj.waypointProgress += delta * obj.waypointSpeed;
                 
-                // Smooth interpolation with easing
                 const easeProgress = obj.waypointProgress < 0.5 
                     ? 2 * obj.waypointProgress * obj.waypointProgress 
                     : 1 - Math.pow(-2 * obj.waypointProgress + 2, 2) / 2;
                 
-                // Lerp to target with wandering
                 obj.mesh.position.lerpVectors(
                     obj.currentWaypoint,
                     obj.targetWaypoint,
                     easeProgress
                 );
                 
-                // Add organic wandering motion
-                const wanderRadius = 3;
+                // Wandering
+                const wanderRadius = obj.config.birdFlight ? 5 : 3;
                 obj.wanderAngle += (Math.random() - 0.5) * 0.1;
                 obj.mesh.position.x += Math.cos(obj.wanderAngle) * wanderRadius * delta;
                 obj.mesh.position.z += Math.sin(obj.wanderAngle) * wanderRadius * delta;
                 
-                // Add vertical bobbing
-                obj.mesh.position.y += Math.sin(t * 0.5) * 0.02;
+                // Vertical bobbing
+                obj.mesh.position.y += Math.sin(t * (obj.config.birdFlight ? 0.8 : 0.5)) * 0.02;
                 
-                // When waypoint reached, pick new one!
+                // Reached waypoint?
                 if (obj.waypointProgress >= 1.0) {
                     obj.currentWaypoint.copy(obj.mesh.position);
-                    obj.targetWaypoint = this.generateWaypoint();
+                    obj.targetWaypoint = obj.config.birdFlight ? this.generateSkyWaypoint() : this.generateWaypoint();
                     obj.waypointProgress = 0;
-                    console.log(`🐠 Creature exploring new area!`);
+                    console.log(`🦅 ${obj.config.birdFlight ? 'Phoenix' : 'Creature'} exploring new area!`);
                 }
                 
-                // Face direction of movement
+                // Face direction
                 const direction = new THREE.Vector3()
                     .subVectors(obj.targetWaypoint, obj.currentWaypoint)
                     .normalize();
                 const targetAngle = Math.atan2(direction.x, direction.z);
                 obj.mesh.rotation.y += (targetAngle - obj.mesh.rotation.y) * 0.05;
                 
-                // Add gentle tilting as creature moves
+                // Tilting (bird banking)
                 const velocity = new THREE.Vector3()
                     .subVectors(obj.targetWaypoint, obj.currentWaypoint);
                 obj.mesh.rotation.z = Math.sin(t * 2) * obj.tiltAmount * (velocity.length() / 50);
-                obj.mesh.rotation.x = Math.cos(t * 1.5) * obj.tiltAmount * 0.5;
-                
-                // Jellyfish pulse - rhythmic upward movement
-                if (obj.config.jellyPulse) {
-                    const pulseT = t * 2 + obj.pulsePhase;
-                    // Quick pulse up, gentle drift down
-                    const pulse = Math.max(0, Math.sin(pulseT)) * 2.5;
-                    obj.mesh.position.y += pulse * delta * 5;
-                    
-                    // Squish/stretch effect
-                    const squish = 1 + Math.sin(pulseT) * 0.12;
-                    obj.mesh.scale.y = obj.config.scale * squish;
-                    obj.mesh.scale.x = obj.config.scale * (2 - squish) * 0.5 + obj.config.scale * 0.5;
-                    obj.mesh.scale.z = obj.config.scale * (2 - squish) * 0.5 + obj.config.scale * 0.5;
+                if (obj.config.birdFlight) {
+                    obj.mesh.rotation.x = Math.cos(t * 1.5) * obj.tiltAmount * 0.3;
                 }
                 
-            } else if (obj.config.swim) {
-                // Regular swimming - smaller area movement
-                const st = time + obj.swimOffset;
-                obj.mesh.position.x = obj.base.x + Math.sin(st * 0.4) * 3;
-                obj.mesh.position.y = obj.base.y + Math.sin(st * 0.6) * 1.5;
-                obj.mesh.position.z = obj.base.z + Math.cos(st * 0.35) * 3;
-                obj.mesh.rotation.y += Math.sin(st * 0.5) * 0.01;
-                
             } else if (obj.config.float) {
-                // Gentle floating
                 obj.mesh.position.y = obj.base.y + Math.sin(t * 0.5) * 0.4;
                 obj.mesh.rotation.y += delta * 0.2;
                 
             } else if (obj.config.spin) {
-                // Rotation for planets
                 obj.mesh.rotation.y += delta * 0.02;
             }
         }
         
-        // Stars rotate
         if (this.stars) this.stars.rotation.y += delta * 0.003;
         
-        // Particles drift
         if (this.particles) {
             const pos = this.particles.geometry.attributes.position.array;
             for (let i = 1; i < pos.length; i += 3) {
@@ -1073,19 +1056,16 @@ class TansHome {
             this.particles.rotation.y += delta * 0.01;
         }
         
-        // Glow ring pulse
         if (this.glowRing) {
             this.glowRing.material.opacity = 0.35 + Math.sin(time * 2) * 0.15;
         }
         
-        // Sky planets rotate
         if (this.skyPlanets) {
             this.skyPlanets.jupiter.rotation.y += delta * 0.008;
             this.skyPlanets.saturn.rotation.y += delta * 0.01;
             this.skyPlanets.saturnRing.rotation.z += delta * 0.005;
         }
         
-        // Text always faces player
         if (this.homeText) this.homeText.lookAt(this.camera.position);
         if (this.homeTextGlow) {
             this.homeTextGlow.lookAt(this.camera.position);
