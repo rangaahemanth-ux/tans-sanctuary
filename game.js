@@ -191,7 +191,7 @@ class TansHome {
             {
                 file: 'mushroom_water_house.glb',
                 name: 'house',
-                scale: 1.8,
+                scale: 3.8,
                 position: [0, 0, -5],
                 noAnimation: true,
                 interactive: true,
@@ -201,7 +201,7 @@ class TansHome {
             {
                 file: 'red_post_box.glb',
                 name: 'postbox',
-                scale: 1.0,
+                scale: 2.0,
                 position: [8, 0, 3],
                 rotation: [0, -0.5, 0],
                 noAnimation: true,
@@ -216,7 +216,7 @@ class TansHome {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
                 scale: 0.08,
-                position: [0, 60, 0],  // START VERY HIGH!
+                position: [10, 90, 10],  // START VERY HIGH!
                 animate: true,
                 phoenixFly: true,  // Special free flying!
                 addGlow: true,
@@ -229,7 +229,7 @@ class TansHome {
             {
                 file: 'mythic_whale_-_stylized_animated_model.glb',
                 name: 'whale',
-                scale: 3.0,
+                scale: 100.0,
                 position: [-30, 18, 15],
                 animate: true,
                 whaleSwim: true,
@@ -242,7 +242,7 @@ class TansHome {
             {
                 file: 'jellyray.glb',
                 name: 'jellyray1',
-                scale: 2.5,
+                scale: 3.5,
                 position: [15, 12, 10],
                 animate: true,
                 jellyFloat: true,
@@ -253,7 +253,7 @@ class TansHome {
             {
                 file: 'jellyray (1).glb',
                 name: 'jellyray2',
-                scale: 2.3,
+                scale: 3.3,
                 position: [-18, 15, -10],
                 animate: true,
                 jellyFloat: true,
@@ -275,7 +275,7 @@ class TansHome {
             {
                 file: 'salsa_dance_basic_steps_-_lowpoly_style.glb',
                 name: 'dancer',
-                scale: 0.04,
+                scale: 0.03,
                 position: [-8, 0, 5],
                 rotation: [0, 0.8, 0],
                 animate: true,
@@ -287,7 +287,7 @@ class TansHome {
             {
                 file: 'stylized_planet.glb',
                 name: 'stylizedPlanet',
-                scale: 20,
+                scale: 60,
                 position: [120, 60, -140],
                 spin: true,
                 interactive: true,
