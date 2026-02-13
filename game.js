@@ -205,14 +205,14 @@ class TansHome {
         const loadBar = document.getElementById('load-bar');
         const loadStatus = document.getElementById('load-status');
         
-        // ALL YOUR MODELS with proper sizes and positions
+        // ALL YOUR MODELS - FIXED SIZES & TRAVELING MOVEMENT
         const models = [
-            // === HOUSE (center, interactive) ===
+            // === HOUSE (center) ===
             {
                 file: 'mushroom_water_house.glb',
                 name: 'house',
                 scale: 1.8,
-                position: [0, 0, -8],
+                position: [0, 0, -5],
                 noAnimation: true,
                 interactive: true,
                 info: {
@@ -221,57 +221,59 @@ class TansHome {
                     fact: 'Every room inside is filled with memories of us!'
                 }
             },
-            // === POSTBOX (front right, interactive) ===
+            // === POSTBOX ===
             {
                 file: 'red_post_box.glb',
                 name: 'postbox',
                 scale: 1.0,
-                position: [6, 0, 0],
+                position: [8, 0, 3],
                 rotation: [0, -0.5, 0],
                 noAnimation: true,
                 interactive: true,
                 isLetter: true,
                 info: { name: '💌 Love Letter', description: 'A special letter waiting for you...', fact: '' }
             },
-            // === PHOENIX (behind house, small, wings open, stationary) ===
+            // === PHOENIX - TINY and far behind ===
             {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
-                scale: 0.03,  // TINY!
-                position: [0, 6, -15],  // Behind house
-                rotation: [0, Math.PI, 0],  // Facing forward
-                noAnimation: false,  // Let wings animate
-                noMovement: true,  // Don't orbit, stay still
+                scale: 0.008,  // SUPER TINY!
+                position: [0, 12, -35],  // Far behind house
+                rotation: [0, Math.PI, 0],
+                noAnimation: false,
+                noMovement: true,
                 interactive: true,
                 info: {
                     name: '🔥 Guardian Phoenix',
-                    description: 'This mystical firebird watches over our home. Its eternal flame represents our undying love.',
+                    description: 'This mystical firebird watches over our home from afar.',
                     fact: 'Legend says it grants wishes to those with pure hearts!'
                 }
             },
-            // === CRYSTAL JELLYFISH (new! front left) ===
+            // === CRYSTAL JELLYFISH - BIG, travels across sky ===
             {
                 file: 'crystal_jellyfish_leptomedusae.glb',
                 name: 'crystalJelly',
-                scale: 0.8,
-                position: [-5, 4, 3],
+                scale: 2.5,  // BIG!
+                position: [-15, 12, 10],
                 animate: true,
-                swim: true,
+                travel: true,  // Travels across the site!
+                jellyPulse: true,  // Pulses upward like real jellyfish
                 interactive: true,
                 info: {
                     name: '💎 Crystal Jellyfish',
-                    description: 'A rare crystalline jellyfish that glows with inner light. It\'s attracted to places filled with love.',
+                    description: 'A rare crystalline jellyfish that glows with inner light.',
                     fact: 'Its light changes color based on the emotions around it!'
                 }
             },
-            // === JELLYRAYS (floating around) ===
+            // === JELLYRAYS - BIG, travel across sky ===
             {
                 file: 'jellyray.glb',
                 name: 'jellyray1',
-                scale: 0.4,
-                position: [7, 5, -3],
+                scale: 1.8,  // BIG!
+                position: [20, 15, -10],
                 animate: true,
-                swim: true,
+                travel: true,
+                jellyPulse: true,
                 interactive: true,
                 info: {
                     name: '🎐 Cosmic Jellyray',
@@ -282,10 +284,11 @@ class TansHome {
             {
                 file: 'jellyray (1).glb',
                 name: 'jellyray2',
-                scale: 0.35,
-                position: [-8, 6, -5],
+                scale: 1.5,  // BIG!
+                position: [-20, 18, 15],
                 animate: true,
-                swim: true,
+                travel: true,
+                jellyPulse: true,
                 interactive: true,
                 info: {
                     name: '✨ Starlight Jellyray',
@@ -293,14 +296,14 @@ class TansHome {
                     fact: 'Each one holds memories of the cosmos!'
                 }
             },
-            // === BLADDERFISH ===
+            // === BLADDERFISH - travels around ===
             {
                 file: 'bladderfish.glb',
                 name: 'bladderfish',
-                scale: 0.35,
-                position: [4, 3, 5],
+                scale: 1.2,  // Bigger!
+                position: [10, 8, 20],
                 animate: true,
-                swim: true,
+                travel: true,
                 interactive: true,
                 info: {
                     name: '🐡 Space Bladderfish',
@@ -308,28 +311,28 @@ class TansHome {
                     fact: 'It chose to live here because of all the love!'
                 }
             },
-            // === SALSA DANCER (new! dancing figure) ===
+            // === SALSA DANCER ===
             {
                 file: 'salsa_dance_basic_steps_-_lowpoly_style.glb',
                 name: 'dancer',
-                scale: 0.8,
-                position: [-6, 0, 2],
-                rotation: [0, 0.5, 0],
+                scale: 1.0,
+                position: [-8, 0, 5],
+                rotation: [0, 0.8, 0],
                 animate: true,
                 noMovement: true,
                 interactive: true,
                 info: {
                     name: '💃 Dancing Spirit',
-                    description: 'A joyful spirit that dances eternally to celebrate love. It appeared when this home was created.',
+                    description: 'A joyful spirit that dances eternally to celebrate love.',
                     fact: 'It dances to the rhythm of your heartbeat!'
                 }
             },
-            // === PURPLE PLANET (new! in sky) ===
+            // === PURPLE PLANET - HUGE in sky ===
             {
                 file: 'purple_planet.glb',
                 name: 'purplePlanet',
-                scale: 3,
-                position: [-60, 40, -80],
+                scale: 25,  // HUGE!
+                position: [-100, 80, -150],
                 spin: true,
                 interactive: true,
                 info: {
@@ -338,12 +341,12 @@ class TansHome {
                     fact: 'Some say lovers who wish upon it will be together forever!'
                 }
             },
-            // === STYLIZED PLANET ===
+            // === STYLIZED PLANET - HUGE ===
             {
                 file: 'stylized_planet.glb',
                 name: 'stylizedPlanet',
-                scale: 4,
-                position: [70, 35, -90],
+                scale: 20,  // HUGE!
+                position: [120, 60, -140],
                 spin: true,
                 interactive: true,
                 info: {
@@ -352,20 +355,20 @@ class TansHome {
                     fact: 'Every color represents a beautiful emotion!'
                 }
             },
-            // === PAPYRUS (floating near postbox) ===
+            // === PAPYRUS ===
             {
                 file: 'furled_papyrus.glb',
                 name: 'papyrus',
-                scale: 0.25,
-                position: [6, 2, 0],
+                scale: 0.3,
+                position: [8, 2.2, 3],
                 float: true,
                 noAnimation: true
             },
-            // === DEEP SPACE SKYBOX (background) ===
+            // === DEEP SPACE SKYBOX ===
             {
                 file: 'deep_space_skybox_16k_with_planets.glb',
                 name: 'spaceSkybox',
-                scale: 100,
+                scale: 150,
                 position: [0, 0, 0],
                 noAnimation: true,
                 noMovement: true
@@ -426,14 +429,17 @@ class TansHome {
                         this.mixers.push(mixer);
                     }
                     
-                    // Movement
-                    if ((config.swim || config.float || config.spin) && !config.noMovement) {
+                    // Movement - including travel across site
+                    if ((config.swim || config.float || config.spin || config.travel || config.jellyPulse) && !config.noMovement) {
                         this.floatingObjects.push({
                             mesh: model,
                             config,
                             base: new THREE.Vector3(...config.position),
                             offset: Math.random() * Math.PI * 2,
-                            swimOffset: Math.random() * Math.PI * 2
+                            swimOffset: Math.random() * Math.PI * 2,
+                            travelAngle: Math.random() * Math.PI * 2,  // Starting angle for travel
+                            travelSpeed: 0.02 + Math.random() * 0.03,  // Travel speed variation
+                            pulsePhase: Math.random() * Math.PI * 2   // Jelly pulse phase
                         });
                     }
                     
@@ -459,54 +465,59 @@ class TansHome {
     }
     
     addCreatureClones() {
-        // Clone jellyrays
+        // Clone jellyrays - traveling across sky
         if (this.models.jellyray1) {
-            [[3, 7, 6], [-4, 5, 8], [8, 4, -6]].forEach(pos => {
+            [[-25, 20, 15], [30, 16, -20], [0, 22, 25]].forEach((pos, i) => {
                 const clone = this.models.jellyray1.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(0.25 + Math.random() * 0.15);
+                clone.scale.setScalar(1.2 + Math.random() * 0.8);  // Big!
                 clone.rotation.y = Math.random() * Math.PI * 2;
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { swim: true },
+                    config: { travel: true, jellyPulse: true, scale: clone.scale.x },
                     base: clone.position.clone(),
                     offset: Math.random() * Math.PI * 2,
-                    swimOffset: Math.random() * Math.PI * 2
+                    travelAngle: Math.random() * Math.PI * 2,
+                    travelSpeed: 0.015 + Math.random() * 0.02,
+                    pulsePhase: Math.random() * Math.PI * 2
                 });
             });
         }
         
-        // Clone crystal jelly
+        // Clone crystal jelly - traveling with pulse
         if (this.models.crystalJelly) {
-            [[6, 6, -4], [-3, 7, -2]].forEach(pos => {
+            [[25, 18, 10], [-30, 15, -15]].forEach(pos => {
                 const clone = this.models.crystalJelly.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(0.5 + Math.random() * 0.3);
+                clone.scale.setScalar(1.8 + Math.random() * 1.0);  // Big!
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { swim: true },
+                    config: { travel: true, jellyPulse: true, scale: clone.scale.x },
                     base: clone.position.clone(),
                     offset: Math.random() * Math.PI * 2,
-                    swimOffset: Math.random() * Math.PI * 2
+                    travelAngle: Math.random() * Math.PI * 2,
+                    travelSpeed: 0.01 + Math.random() * 0.015,
+                    pulsePhase: Math.random() * Math.PI * 2
                 });
             });
         }
         
-        // Clone bladderfish
+        // Clone bladderfish - traveling
         if (this.models.bladderfish) {
-            [[-5, 4, 6], [2, 5, 3]].forEach(pos => {
+            [[-20, 10, 20], [25, 8, 15]].forEach(pos => {
                 const clone = this.models.bladderfish.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(0.2 + Math.random() * 0.15);
+                clone.scale.setScalar(0.8 + Math.random() * 0.5);  // Bigger!
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { swim: true },
+                    config: { travel: true, scale: clone.scale.x },
                     base: clone.position.clone(),
                     offset: Math.random() * Math.PI * 2,
-                    swimOffset: Math.random() * Math.PI * 2
+                    travelAngle: Math.random() * Math.PI * 2,
+                    travelSpeed: 0.025 + Math.random() * 0.02
                 });
             });
         }
@@ -556,37 +567,58 @@ class TansHome {
     }
     
     createSkyPlanets() {
-        // Jupiter
+        // Jupiter - HUGE
         const jupiter = new THREE.Mesh(
-            new THREE.SphereGeometry(20, 32, 32),
+            new THREE.SphereGeometry(40, 32, 32),  // HUGE!
             new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.8 })
         );
-        jupiter.position.set(-120, 60, -180);
+        jupiter.position.set(-180, 100, -250);
         this.scene.add(jupiter);
         
-        // Saturn with rings
+        // Jupiter stripes
+        const stripeColors = [0xc99b65, 0xb8845a, 0xd4a574];
+        for (let i = -2; i <= 2; i++) {
+            const stripe = new THREE.Mesh(
+                new THREE.TorusGeometry(41, 2, 8, 64),
+                new THREE.MeshBasicMaterial({ color: stripeColors[(i + 2) % 3] })
+            );
+            stripe.position.copy(jupiter.position);
+            stripe.position.y += i * 12;
+            stripe.rotation.x = Math.PI / 2;
+            this.scene.add(stripe);
+        }
+        
+        // Saturn with rings - HUGE
         const saturn = new THREE.Mesh(
-            new THREE.SphereGeometry(15, 32, 32),
+            new THREE.SphereGeometry(30, 32, 32),  // HUGE!
             new THREE.MeshStandardMaterial({ color: 0xead6b8, roughness: 0.7 })
         );
-        saturn.position.set(140, 50, -160);
+        saturn.position.set(200, 80, -220);
         this.scene.add(saturn);
         
         const saturnRing = new THREE.Mesh(
-            new THREE.RingGeometry(22, 35, 64),
-            new THREE.MeshBasicMaterial({ color: 0xc9b896, side: THREE.DoubleSide, transparent: true, opacity: 0.6 })
+            new THREE.RingGeometry(45, 70, 64),  // Big rings!
+            new THREE.MeshBasicMaterial({ color: 0xc9b896, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
         );
         saturnRing.position.copy(saturn.position);
         saturnRing.rotation.x = Math.PI / 2.5;
         this.scene.add(saturnRing);
         
-        // Moon (closer)
+        // Moon - glowing, closer
         const moon = new THREE.Mesh(
-            new THREE.SphereGeometry(6, 32, 32),
-            new THREE.MeshStandardMaterial({ color: 0xffffee, emissive: 0xffffaa, emissiveIntensity: 0.5 })
+            new THREE.SphereGeometry(12, 32, 32),
+            new THREE.MeshStandardMaterial({ color: 0xffffee, emissive: 0xffffaa, emissiveIntensity: 0.6 })
         );
-        moon.position.set(50, 40, -80);
+        moon.position.set(70, 60, -120);
         this.scene.add(moon);
+        
+        // Moon glow
+        const moonGlow = new THREE.Mesh(
+            new THREE.SphereGeometry(18, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0xffffcc, transparent: true, opacity: 0.15 })
+        );
+        moonGlow.position.copy(moon.position);
+        this.scene.add(moonGlow);
         
         // Make planets interactive
         [
@@ -912,21 +944,50 @@ class TansHome {
         // GLB animations
         this.mixers.forEach(m => m.update(delta));
         
-        // Floating objects
+        // Floating/traveling objects
         for (const obj of this.floatingObjects) {
             const t = time + obj.offset;
-            const st = time + obj.swimOffset;
             
-            if (obj.config.swim) {
-                obj.mesh.position.x = obj.base.x + Math.sin(st * 0.4) * 1.5;
-                obj.mesh.position.y = obj.base.y + Math.sin(st * 0.6) * 0.6;
-                obj.mesh.position.z = obj.base.z + Math.cos(st * 0.35) * 1.2;
-                obj.mesh.rotation.y += Math.sin(st * 0.5) * 0.008;
-                obj.mesh.rotation.z = Math.sin(st * 0.7) * 0.08;
+            if (obj.config.travel) {
+                // TRAVEL across the entire site in big circles/paths
+                const travelRadius = 25 + Math.sin(t * 0.1) * 10;  // Varying radius
+                const angle = t * obj.travelSpeed + obj.travelAngle;
+                
+                // Move in a large figure-8 or circular pattern across the sky
+                obj.mesh.position.x = Math.sin(angle) * travelRadius;
+                obj.mesh.position.z = Math.cos(angle * 0.7) * travelRadius - 5;
+                
+                // Height variation
+                const baseHeight = obj.base.y;
+                obj.mesh.position.y = baseHeight + Math.sin(t * 0.3) * 5;
+                
+                // Face direction of travel
+                obj.mesh.rotation.y = -angle + Math.PI / 2;
+                
+                // Jellyfish pulse - move UPWARD rhythmically
+                if (obj.config.jellyPulse) {
+                    const pulseT = t * 2 + obj.pulsePhase;
+                    // Quick up, slow down (like real jellyfish)
+                    const pulse = Math.max(0, Math.sin(pulseT)) * 3;
+                    obj.mesh.position.y += pulse;
+                    
+                    // Slight squish effect
+                    const squish = 1 + Math.sin(pulseT) * 0.1;
+                    obj.mesh.scale.y = obj.config.scale * squish;
+                    obj.mesh.scale.x = obj.config.scale * (2 - squish) * 0.5 + obj.config.scale * 0.5;
+                    obj.mesh.scale.z = obj.config.scale * (2 - squish) * 0.5 + obj.config.scale * 0.5;
+                }
+            } else if (obj.config.swim) {
+                // Regular swimming - still moves but in smaller area
+                const st = time + obj.swimOffset;
+                obj.mesh.position.x = obj.base.x + Math.sin(st * 0.4) * 3;
+                obj.mesh.position.y = obj.base.y + Math.sin(st * 0.6) * 1.5;
+                obj.mesh.position.z = obj.base.z + Math.cos(st * 0.35) * 3;
+                obj.mesh.rotation.y += Math.sin(st * 0.5) * 0.01;
             } else if (obj.config.float) {
-                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.5) * 0.25;
+                obj.mesh.position.y = obj.base.y + Math.sin(t * 0.5) * 0.4;
             } else if (obj.config.spin) {
-                obj.mesh.rotation.y += delta * 0.03;
+                obj.mesh.rotation.y += delta * 0.02;
             }
         }
         
@@ -936,9 +997,9 @@ class TansHome {
         // Particles
         if (this.particles) {
             const pos = this.particles.geometry.attributes.position.array;
-            for (let i = 1; i < pos.length; i += 3) pos[i] += Math.sin(time + i) * 0.002;
+            for (let i = 1; i < pos.length; i += 3) pos[i] += Math.sin(time + i) * 0.003;
             this.particles.geometry.attributes.position.needsUpdate = true;
-            this.particles.rotation.y += delta * 0.008;
+            this.particles.rotation.y += delta * 0.01;
         }
         
         // Glow ring
@@ -946,9 +1007,9 @@ class TansHome {
         
         // Sky planets rotate slowly
         if (this.skyPlanets) {
-            this.skyPlanets.jupiter.rotation.y += delta * 0.01;
-            this.skyPlanets.saturn.rotation.y += delta * 0.015;
-            this.skyPlanets.saturnRing.rotation.z += delta * 0.008;
+            this.skyPlanets.jupiter.rotation.y += delta * 0.008;
+            this.skyPlanets.saturn.rotation.y += delta * 0.01;
+            this.skyPlanets.saturnRing.rotation.z += delta * 0.005;
         }
         
         // Text faces player
