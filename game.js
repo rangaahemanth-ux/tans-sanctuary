@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// TAN'S HOME — Final Polished Edition
+// TAN'S HOME — Enhanced Exploratory Movement Edition
 // Built with passion for Tanmai 💕
+// Now with improved free-roaming creature movement!
 // ═══════════════════════════════════════════════════════════════════════════
 
 class TansHome {
@@ -205,7 +206,7 @@ class TansHome {
         const loadBar = document.getElementById('load-bar');
         const loadStatus = document.getElementById('load-status');
         
-        // ALL YOUR MODELS - FIXED SIZES & TRAVELING MOVEMENT
+        // ALL YOUR MODELS - WITH ENHANCED EXPLORATORY MOVEMENT
         const models = [
             // === HOUSE (center) ===
             {
@@ -237,8 +238,8 @@ class TansHome {
             {
                 file: 'phoenix_on_fire_update.glb',
                 name: 'phoenix',
-                scale: 0.06,  // SUPER TINY!
-                position: [0, 12, -35],  // Far behind house
+                scale: 0.06,
+                position: [0, 12, -35],
                 rotation: [0, Math.PI, 0],
                 noAnimation: false,
                 noMovement: true,
@@ -249,15 +250,15 @@ class TansHome {
                     fact: 'Legend says it grants wishes to those with pure hearts!'
                 }
             },
-            // === CRYSTAL JELLYFISH - BIG, travels across sky ===
+            // === CRYSTAL JELLYFISH - BIG, explores freely ===
             {
                 file: 'crystal_jellyfish_leptomedusae.glb',
                 name: 'crystalJelly',
-                scale: 2.5,  // BIG!
+                scale: 2.5,
                 position: [-15, 12, 10],
                 animate: true,
-                travel: true,  // Travels across the site!
-                jellyPulse: true,  // Pulses upward like real jellyfish
+                explore: true,  // NEW: Free exploration mode!
+                jellyPulse: true,
                 interactive: true,
                 info: {
                     name: '💎 Crystal Jellyfish',
@@ -265,14 +266,14 @@ class TansHome {
                     fact: 'Its light changes color based on the emotions around it!'
                 }
             },
-            // === JELLYRAYS - BIG, travel across sky ===
+            // === JELLYRAYS - BIG, explore freely ===
             {
                 file: 'jellyray.glb',
                 name: 'jellyray1',
-                scale: 1.8,  // BIG!
+                scale: 1.8,
                 position: [20, 15, -10],
                 animate: true,
-                travel: true,
+                explore: true,
                 jellyPulse: true,
                 interactive: true,
                 info: {
@@ -284,10 +285,10 @@ class TansHome {
             {
                 file: 'jellyray (1).glb',
                 name: 'jellyray2',
-                scale: 1.5,  // BIG!
+                scale: 1.5,
                 position: [-20, 18, 15],
                 animate: true,
-                travel: true,
+                explore: true,
                 jellyPulse: true,
                 interactive: true,
                 info: {
@@ -296,14 +297,14 @@ class TansHome {
                     fact: 'Each one holds memories of the cosmos!'
                 }
             },
-            // === BLADDERFISH - travels around ===
+            // === BLADDERFISH - explores around ===
             {
                 file: 'bladderfish.glb',
                 name: 'bladderfish',
-                scale: 1.2,  // Bigger!
+                scale: 1.2,
                 position: [10, 8, 20],
                 animate: true,
-                travel: true,
+                explore: true,
                 interactive: true,
                 info: {
                     name: '🐡 Space Bladderfish',
@@ -331,7 +332,7 @@ class TansHome {
             {
                 file: 'purple_planet.glb',
                 name: 'purplePlanet',
-                scale: 25,  // HUGE!
+                scale: 25,
                 position: [-100, 80, -150],
                 spin: true,
                 interactive: true,
@@ -345,7 +346,7 @@ class TansHome {
             {
                 file: 'stylized_planet.glb',
                 name: 'stylizedPlanet',
-                scale: 20,  // HUGE!
+                scale: 20,
                 position: [120, 60, -140],
                 spin: true,
                 interactive: true,
@@ -429,17 +430,28 @@ class TansHome {
                         this.mixers.push(mixer);
                     }
                     
-                    // Movement - including travel across site
-                    if ((config.swim || config.float || config.spin || config.travel || config.jellyPulse) && !config.noMovement) {
+                    // ENHANCED MOVEMENT SYSTEM - Free exploration!
+                    if ((config.swim || config.float || config.spin || config.explore || config.jellyPulse) && !config.noMovement) {
                         this.floatingObjects.push({
                             mesh: model,
                             config,
                             base: new THREE.Vector3(...config.position),
                             offset: Math.random() * Math.PI * 2,
+                            
+                            // ENHANCED: Waypoint-based exploration system
+                            currentWaypoint: new THREE.Vector3(...config.position),
+                            targetWaypoint: this.generateWaypoint(),
+                            waypointProgress: 0,
+                            waypointSpeed: 0.15 + Math.random() * 0.25,
+                            
+                            // Random movement modifiers
                             swimOffset: Math.random() * Math.PI * 2,
-                            travelAngle: Math.random() * Math.PI * 2,  // Starting angle for travel
-                            travelSpeed: 0.02 + Math.random() * 0.03,  // Travel speed variation
-                            pulsePhase: Math.random() * Math.PI * 2   // Jelly pulse phase
+                            pulsePhase: Math.random() * Math.PI * 2,
+                            tiltAmount: Math.random() * 0.3 + 0.2,
+                            
+                            // Wandering behavior
+                            wanderAngle: Math.random() * Math.PI * 2,
+                            wanderSpeed: 0.02 + Math.random() * 0.03
                         });
                     }
                     
@@ -464,60 +476,88 @@ class TansHome {
         });
     }
     
+    // NEW: Generate random waypoints for creatures to explore towards
+    generateWaypoint() {
+        const radius = 20 + Math.random() * 25;  // Distance from center
+        const angle = Math.random() * Math.PI * 2;
+        const height = 8 + Math.random() * 20;  // Height range
+        
+        return new THREE.Vector3(
+            Math.cos(angle) * radius,
+            height,
+            Math.sin(angle) * radius
+        );
+    }
+    
     addCreatureClones() {
-        // Clone jellyrays - traveling across sky
+        // Clone jellyrays - each exploring independently
         if (this.models.jellyray1) {
             [[-25, 20, 15], [30, 16, -20], [0, 22, 25]].forEach((pos, i) => {
                 const clone = this.models.jellyray1.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(1.2 + Math.random() * 0.8);  // Big!
+                clone.scale.setScalar(1.2 + Math.random() * 0.8);
                 clone.rotation.y = Math.random() * Math.PI * 2;
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { travel: true, jellyPulse: true, scale: clone.scale.x },
+                    config: { explore: true, jellyPulse: true, scale: clone.scale.x },
                     base: clone.position.clone(),
                     offset: Math.random() * Math.PI * 2,
-                    travelAngle: Math.random() * Math.PI * 2,
-                    travelSpeed: 0.015 + Math.random() * 0.02,
-                    pulsePhase: Math.random() * Math.PI * 2
+                    currentWaypoint: clone.position.clone(),
+                    targetWaypoint: this.generateWaypoint(),
+                    waypointProgress: 0,
+                    waypointSpeed: 0.1 + Math.random() * 0.2,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    tiltAmount: Math.random() * 0.3 + 0.2,
+                    wanderAngle: Math.random() * Math.PI * 2,
+                    wanderSpeed: 0.015 + Math.random() * 0.02
                 });
             });
         }
         
-        // Clone crystal jelly - traveling with pulse
+        // Clone crystal jelly - exploring with pulse
         if (this.models.crystalJelly) {
             [[25, 18, 10], [-30, 15, -15]].forEach(pos => {
                 const clone = this.models.crystalJelly.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(1.8 + Math.random() * 1.0);  // Big!
+                clone.scale.setScalar(1.8 + Math.random() * 1.0);
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { travel: true, jellyPulse: true, scale: clone.scale.x },
+                    config: { explore: true, jellyPulse: true, scale: clone.scale.x },
                     base: clone.position.clone(),
                     offset: Math.random() * Math.PI * 2,
-                    travelAngle: Math.random() * Math.PI * 2,
-                    travelSpeed: 0.01 + Math.random() * 0.015,
-                    pulsePhase: Math.random() * Math.PI * 2
+                    currentWaypoint: clone.position.clone(),
+                    targetWaypoint: this.generateWaypoint(),
+                    waypointProgress: 0,
+                    waypointSpeed: 0.08 + Math.random() * 0.15,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    tiltAmount: Math.random() * 0.2 + 0.15,
+                    wanderAngle: Math.random() * Math.PI * 2,
+                    wanderSpeed: 0.01 + Math.random() * 0.015
                 });
             });
         }
         
-        // Clone bladderfish - traveling
+        // Clone bladderfish - exploring
         if (this.models.bladderfish) {
-            [[-20, 10, 20], [25, 8, 15]].forEach(pos => {
+            [[-20, 10, 20], [25, 8, 15], [5, 12, -18]].forEach(pos => {
                 const clone = this.models.bladderfish.clone();
                 clone.position.set(...pos);
-                clone.scale.setScalar(0.8 + Math.random() * 0.5);  // Bigger!
+                clone.scale.setScalar(0.8 + Math.random() * 0.5);
                 this.scene.add(clone);
                 this.floatingObjects.push({
                     mesh: clone,
-                    config: { travel: true, scale: clone.scale.x },
+                    config: { explore: true, scale: clone.scale.x },
                     base: clone.position.clone(),
                     offset: Math.random() * Math.PI * 2,
-                    travelAngle: Math.random() * Math.PI * 2,
-                    travelSpeed: 0.025 + Math.random() * 0.02
+                    currentWaypoint: clone.position.clone(),
+                    targetWaypoint: this.generateWaypoint(),
+                    waypointProgress: 0,
+                    waypointSpeed: 0.2 + Math.random() * 0.2,
+                    tiltAmount: Math.random() * 0.4 + 0.2,
+                    wanderAngle: Math.random() * Math.PI * 2,
+                    wanderSpeed: 0.025 + Math.random() * 0.02
                 });
             });
         }
@@ -569,7 +609,7 @@ class TansHome {
     createSkyPlanets() {
         // Jupiter - HUGE
         const jupiter = new THREE.Mesh(
-            new THREE.SphereGeometry(40, 32, 32),  // HUGE!
+            new THREE.SphereGeometry(40, 32, 32),
             new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.8 })
         );
         jupiter.position.set(-180, 100, -250);
@@ -590,14 +630,14 @@ class TansHome {
         
         // Saturn with rings - HUGE
         const saturn = new THREE.Mesh(
-            new THREE.SphereGeometry(30, 32, 32),  // HUGE!
+            new THREE.SphereGeometry(30, 32, 32),
             new THREE.MeshStandardMaterial({ color: 0xead6b8, roughness: 0.7 })
         );
         saturn.position.set(200, 80, -220);
         this.scene.add(saturn);
         
         const saturnRing = new THREE.Mesh(
-            new THREE.RingGeometry(45, 70, 64),  // Big rings!
+            new THREE.RingGeometry(45, 70, 64),
             new THREE.MeshBasicMaterial({ color: 0xc9b896, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
         );
         saturnRing.position.copy(saturn.position);
@@ -674,46 +714,33 @@ class TansHome {
     
     setupAudio() {
         this.audioElement = new Audio();
-        this.audioElement.loop = false; // We'll handle looping for playlist
+        this.audioElement.loop = false;
         this.audioElement.volume = 0.5;
         
-        // When song ends, play next
         this.audioElement.addEventListener('ended', () => this.playNextSong());
-        
-        // Scan for music files
         this.scanForMusic();
         
-        // Play button
         document.getElementById('music-play-btn')?.addEventListener('click', () => this.toggleMusic());
-        
-        // Previous/Next buttons
         document.getElementById('music-prev-btn')?.addEventListener('click', () => this.playPrevSong());
         document.getElementById('music-next-btn')?.addEventListener('click', () => this.playNextSong());
         
-        // Volume
         document.getElementById('music-volume')?.addEventListener('input', e => {
             this.audioElement.volume = e.target.value / 100;
         });
     }
     
     scanForMusic() {
-        // All possible music file patterns including your actual file structure
         const patterns = [
-            // Your actual file structure (music.mp3 is a folder!)
             'sounds/music.mp3/Chinuku Take-SenSongsMp3.Co.mp3',
             'sounds/music.mp3/Chinuku%20Take-SenSongsMp3.Co.mp3',
-            // Direct in sounds folder
             'sounds/Chinuku Take-SenSongsMp3.Co.mp3',
             'sounds/Chinuku%20Take-SenSongsMp3.Co.mp3',
-            // Common names
             'sounds/music.mp3', 'sounds/song.mp3', 'sounds/background.mp3',
             'sounds/track.mp3', 'sounds/bgm.mp3', 'sounds/audio.mp3',
             'sounds/love.mp3', 'sounds/tanmai.mp3', 'sounds/chinuku.mp3',
-            // Numbered
             'sounds/song1.mp3', 'sounds/song2.mp3', 'sounds/song3.mp3',
             'sounds/track1.mp3', 'sounds/track2.mp3', 'sounds/track3.mp3',
             'sounds/1.mp3', 'sounds/2.mp3', 'sounds/3.mp3',
-            // Other formats
             'sounds/music.wav', 'sounds/music.ogg', 'sounds/music.m4a'
         ];
         
@@ -731,7 +758,6 @@ class TansHome {
             };
         });
         
-        // Set default message after a delay if nothing found
         setTimeout(() => {
             if (this.playlist.length === 0) {
                 document.getElementById('music-name').textContent = 'Add .mp3 files to sounds/ folder';
@@ -794,7 +820,6 @@ class TansHome {
         this.state.started = true;
         document.getElementById('game-canvas').requestPointerLock();
         
-        // Auto-play music
         if (this.playlist.length > 0) {
             setTimeout(() => this.playMusic(), 500);
         }
@@ -911,7 +936,7 @@ class TansHome {
         const crosshair = document.querySelector('.crosshair');
         
         let nearest = null;
-        let nearestDist = 12; // Detection range
+        let nearestDist = 12;
         
         for (const item of this.interactables) {
             const pos = new THREE.Vector3();
@@ -940,79 +965,127 @@ class TansHome {
         }
     }
     
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ENHANCED ANIMATION SYSTEM - FREE EXPLORATION!
+    // ═══════════════════════════════════════════════════════════════════════════
     updateAnimations(delta, time) {
         // GLB animations
         this.mixers.forEach(m => m.update(delta));
         
-        // Floating/traveling objects
+        // ENHANCED FLOATING/EXPLORING OBJECTS
         for (const obj of this.floatingObjects) {
             const t = time + obj.offset;
             
-            if (obj.config.travel) {
-                // TRAVEL across the entire site in big circles/paths
-                const travelRadius = 25 + Math.sin(t * 0.1) * 10;  // Varying radius
-                const angle = t * obj.travelSpeed + obj.travelAngle;
+            if (obj.config.explore) {
+                // ═══════════════════════════════════════════════════════
+                // WAYPOINT-BASED EXPLORATION SYSTEM
+                // Creatures smoothly travel between waypoints, exploring freely!
+                // ═══════════════════════════════════════════════════════
                 
-                // Move in a large figure-8 or circular pattern across the sky
-                obj.mesh.position.x = Math.sin(angle) * travelRadius;
-                obj.mesh.position.z = Math.cos(angle * 0.7) * travelRadius - 5;
+                // Progress towards target waypoint
+                obj.waypointProgress += delta * obj.waypointSpeed;
                 
-                // Height variation
-                const baseHeight = obj.base.y;
-                obj.mesh.position.y = baseHeight + Math.sin(t * 0.3) * 5;
+                // Smooth interpolation with easing
+                const easeProgress = obj.waypointProgress < 0.5 
+                    ? 2 * obj.waypointProgress * obj.waypointProgress 
+                    : 1 - Math.pow(-2 * obj.waypointProgress + 2, 2) / 2;
                 
-                // Face direction of travel
-                obj.mesh.rotation.y = -angle + Math.PI / 2;
+                // Lerp to target with wandering
+                obj.mesh.position.lerpVectors(
+                    obj.currentWaypoint,
+                    obj.targetWaypoint,
+                    easeProgress
+                );
                 
-                // Jellyfish pulse - move UPWARD rhythmically
+                // Add organic wandering motion
+                const wanderRadius = 3;
+                obj.wanderAngle += (Math.random() - 0.5) * 0.1;
+                obj.mesh.position.x += Math.cos(obj.wanderAngle) * wanderRadius * delta;
+                obj.mesh.position.z += Math.sin(obj.wanderAngle) * wanderRadius * delta;
+                
+                // Add vertical bobbing
+                obj.mesh.position.y += Math.sin(t * 0.5) * 0.02;
+                
+                // When waypoint reached, pick new one!
+                if (obj.waypointProgress >= 1.0) {
+                    obj.currentWaypoint.copy(obj.mesh.position);
+                    obj.targetWaypoint = this.generateWaypoint();
+                    obj.waypointProgress = 0;
+                    console.log(`🐠 Creature exploring new area!`);
+                }
+                
+                // Face direction of movement
+                const direction = new THREE.Vector3()
+                    .subVectors(obj.targetWaypoint, obj.currentWaypoint)
+                    .normalize();
+                const targetAngle = Math.atan2(direction.x, direction.z);
+                obj.mesh.rotation.y += (targetAngle - obj.mesh.rotation.y) * 0.05;
+                
+                // Add gentle tilting as creature moves
+                const velocity = new THREE.Vector3()
+                    .subVectors(obj.targetWaypoint, obj.currentWaypoint);
+                obj.mesh.rotation.z = Math.sin(t * 2) * obj.tiltAmount * (velocity.length() / 50);
+                obj.mesh.rotation.x = Math.cos(t * 1.5) * obj.tiltAmount * 0.5;
+                
+                // Jellyfish pulse - rhythmic upward movement
                 if (obj.config.jellyPulse) {
                     const pulseT = t * 2 + obj.pulsePhase;
-                    // Quick up, slow down (like real jellyfish)
-                    const pulse = Math.max(0, Math.sin(pulseT)) * 3;
-                    obj.mesh.position.y += pulse;
+                    // Quick pulse up, gentle drift down
+                    const pulse = Math.max(0, Math.sin(pulseT)) * 2.5;
+                    obj.mesh.position.y += pulse * delta * 5;
                     
-                    // Slight squish effect
-                    const squish = 1 + Math.sin(pulseT) * 0.1;
+                    // Squish/stretch effect
+                    const squish = 1 + Math.sin(pulseT) * 0.12;
                     obj.mesh.scale.y = obj.config.scale * squish;
                     obj.mesh.scale.x = obj.config.scale * (2 - squish) * 0.5 + obj.config.scale * 0.5;
                     obj.mesh.scale.z = obj.config.scale * (2 - squish) * 0.5 + obj.config.scale * 0.5;
                 }
+                
             } else if (obj.config.swim) {
-                // Regular swimming - still moves but in smaller area
+                // Regular swimming - smaller area movement
                 const st = time + obj.swimOffset;
                 obj.mesh.position.x = obj.base.x + Math.sin(st * 0.4) * 3;
                 obj.mesh.position.y = obj.base.y + Math.sin(st * 0.6) * 1.5;
                 obj.mesh.position.z = obj.base.z + Math.cos(st * 0.35) * 3;
                 obj.mesh.rotation.y += Math.sin(st * 0.5) * 0.01;
+                
             } else if (obj.config.float) {
+                // Gentle floating
                 obj.mesh.position.y = obj.base.y + Math.sin(t * 0.5) * 0.4;
+                obj.mesh.rotation.y += delta * 0.2;
+                
             } else if (obj.config.spin) {
+                // Rotation for planets
                 obj.mesh.rotation.y += delta * 0.02;
             }
         }
         
-        // Stars
+        // Stars rotate
         if (this.stars) this.stars.rotation.y += delta * 0.003;
         
-        // Particles
+        // Particles drift
         if (this.particles) {
             const pos = this.particles.geometry.attributes.position.array;
-            for (let i = 1; i < pos.length; i += 3) pos[i] += Math.sin(time + i) * 0.003;
+            for (let i = 1; i < pos.length; i += 3) {
+                pos[i] += Math.sin(time + i) * 0.003;
+            }
             this.particles.geometry.attributes.position.needsUpdate = true;
             this.particles.rotation.y += delta * 0.01;
         }
         
-        // Glow ring
-        if (this.glowRing) this.glowRing.material.opacity = 0.35 + Math.sin(time * 2) * 0.15;
+        // Glow ring pulse
+        if (this.glowRing) {
+            this.glowRing.material.opacity = 0.35 + Math.sin(time * 2) * 0.15;
+        }
         
-        // Sky planets rotate slowly
+        // Sky planets rotate
         if (this.skyPlanets) {
             this.skyPlanets.jupiter.rotation.y += delta * 0.008;
             this.skyPlanets.saturn.rotation.y += delta * 0.01;
             this.skyPlanets.saturnRing.rotation.z += delta * 0.005;
         }
         
-        // Text faces player
+        // Text always faces player
         if (this.homeText) this.homeText.lookAt(this.camera.position);
         if (this.homeTextGlow) {
             this.homeTextGlow.lookAt(this.camera.position);
