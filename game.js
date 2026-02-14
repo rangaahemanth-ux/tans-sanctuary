@@ -722,7 +722,7 @@ class TansHome {
     scanForMusic() {
         const patterns = [
         
-            'public/sounds/Can't Help Falling in Love w You.mp3',
+            'public/sounds/music.mp3',
             'public/sounds/song.mp3',
             'public/sounds/background.mp3',
             'public/sounds/1.mp3', 
